@@ -12,6 +12,12 @@ module.exports = {
     transparent: "transparent",
     current: "currentColor",
     extend: {
+      ringColor: {
+        DEFAULT: 'transparent',
+      },
+      outline: {
+        DEFAULT: 'none',
+      },
       colors: {
         // light mode
         tremor: {
