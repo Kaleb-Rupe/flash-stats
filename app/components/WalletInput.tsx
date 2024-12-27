@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { isValidSolanaAddress } from "../../src/lib/utils/validators";
-import { useToast } from "./ToastContext";
+import { isValidSolanaAddress } from "@/src/lib/utils/validators";
+import { useToast } from "@/app/components/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function WalletInput() {

@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        /* Custom spacing variables */
+        --header-height: 4rem;
+        --sidebar-width: 16rem;
+    }
+
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Better dark mode transitions */
+    body {
+        transition: background-color 0.3s ease;
+    }
+
+    /* Better default focus styles */
+    *:focus-visible {
+        @apply outline-none ring-2 ring-blue-500;
+    }
+}
+
+@layer components {
+
+    /* Custom component styles */
+    .sidebar-link {
+        @apply flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200;
+    }
+
+    .sidebar-link-active {
+        @apply bg-zinc-800 text-white;
+    }
+
+    .sidebar-link-inactive {
+        @apply text-zinc-400 hover:bg-zinc-800 hover:text-white;
+    }
+
+    /* Card styles */
+    .metric-card {
+        @apply bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 transition-all duration-200 hover:shadow-lg;
+    }
+}
+
+/* Scrollbar styling */
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-zinc-100 dark:bg-zinc-800;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-zinc-300 dark:bg-zinc-600 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-zinc-400 dark:bg-zinc-500;
+    }
+}

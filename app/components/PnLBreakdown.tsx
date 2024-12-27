@@ -1,6 +1,6 @@
 import { Card, BarChart } from "@tremor/react";
-import { formatUSD } from "../../src/lib/utils/formatters";
-import { calculatePnLMetrics } from "../../src/lib/utils/pnlAnalytics";
+import { formatUSD } from "@/src/lib/utils/formatters";
+import { calculatePnLMetrics } from "@/src/lib/utils/pnlAnalytics";
 
 interface PnLBreakdownProps {
   metrics: ReturnType<typeof calculatePnLMetrics>;
