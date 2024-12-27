@@ -1,6 +1,6 @@
 import { Card } from "@tremor/react";
-import { formatUSD, formatPercentage } from "../../src/lib/utils/formatters";
-import { TradingStatsProps } from "../../src/types/types";
+import { formatUSD, formatPercentage } from "@/src/lib/utils/formatters";
+import { TradingStatsProps } from "@/src/types/types";
 
 export default function TradingStats({
   winCount,

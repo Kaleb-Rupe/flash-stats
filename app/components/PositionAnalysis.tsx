@@ -1,7 +1,7 @@
 import { Card, BarChart } from "@tremor/react";
-import { TradingData } from "../../src/types/types";
-import { MARKETS } from "../../src/lib/utils/markets";
-import { formatUSD } from "../../src/lib/utils/formatters";
+import { TradingData } from "@/src/types/types";
+import { MARKETS } from "@/src/lib/utils/markets";
+import { formatUSD } from "@/src/lib/utils/formatters";
 
 interface PositionAnalysisProps {
   trades: TradingData[];
