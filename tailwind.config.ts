@@ -79,7 +79,11 @@ module.exports = {
             inverted: colors.black,
           },
         },
-        background: "#14141F",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        emerald: {
+          950: "hsl(var(--emerald-950))",
+        },
         surface: "#1C1C27",
         border: "#2E2E3D",
       },
