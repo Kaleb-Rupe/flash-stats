@@ -49,7 +49,7 @@ export default function LoadingPage({ params }: LoadingPageProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 flex items-center justify-center bg-black"
     >
-      <div className="w-full h-full max-w-3xl max-h-screen relative">
+      <div className="w-full h-full relative">
         {/* Loading video */}
         <video
           ref={videoRef}
@@ -64,9 +64,11 @@ export default function LoadingPage({ params }: LoadingPageProps) {
         </video>
 
         {/* Fallback loading indicator */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white opacity-20" />
-        </div>
+        {videoRef.current?.play() && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white opacity-20" />
+          </div>
+        )}
       </div>
     </motion.div>
   );

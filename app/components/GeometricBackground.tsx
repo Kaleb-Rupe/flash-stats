@@ -1,9 +1,9 @@
 export function GeometricBackground() {
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-emerald-950/60" />
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-background/90 to-emerald-950/60" />
       <svg
-        className="absolute left-[50%] top-0 h-[48rem] w-[128rem] -translate-x-1/2 stroke-emerald-900/50 [mask-image:radial-gradient(64rem_34rem_at_center,white,transparent)]"
+        className="fixed left-1/2 top-0 w-full h-full -translate-x-1/2 stroke-emerald-900/80 [mask-image:radial-gradient(64rem_34rem_at_center,white,transparent)]"
         aria-hidden="true"
       >
         <defs>
@@ -11,8 +11,6 @@ export function GeometricBackground() {
             id="geometric"
             width={150}
             height={150}
-            x="50%"
-            y="100%"
             patternUnits="userSpaceOnUse"
           >
             <path d="M.5 200V.5H200" fill="none" />

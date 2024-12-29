@@ -94,9 +94,12 @@ export default function ChartsPage({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6 mt-24"
     >
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Trading Analytics</h1>
+      <DashboardLayout
+        layoutType="full-width"
+        header={
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold">Trading Analytics</h1>
           <span className="text-gray-500">
             {params.address.slice(0, 4)}...{params.address.slice(-4)}
           </span>
@@ -104,8 +107,9 @@ export default function ChartsPage({
         <DateRangePicker
           onDateChange={(start, end) => setTimeRange({ start, end })}
         />
-      </div>
-      <DashboardLayout layoutType="full-width">
+          </div>
+        }
+      >
         {/* PnL Chart */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Cumulative PnL</h2>

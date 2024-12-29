@@ -3,6 +3,7 @@
 import DatePicker from "react-datepicker";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import "react-datepicker/dist/react-datepicker.css";
 
 // DateRangePicker Component
 export const DateRangePicker = ({
@@ -33,14 +34,14 @@ export const DateRangePicker = ({
     <div>
       <button
         onClick={() => setIsOpen(true)}
-        className="hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg bg-[#131a2b]"
+        className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg bg-[#131a2b] transition duration-300"
       >
         Filter by Dates
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-[#131a2b] bg-opacity-90 flex justify-center items-center z-50">
-          <div className="relative bg-[#131a2b] p-6 rounded-xl shadow-lg max-w-lg mx-auto text-white">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="relative bg-gray-800 p-6 rounded-xl shadow-lg max-w-lg mx-auto text-white">
             {/* Close button */}
             <button
               onClick={() => setIsOpen(false)}
@@ -62,14 +63,14 @@ export const DateRangePicker = ({
               </svg>
             </button>
 
-            <h2 className="text-2xl font-bold text-white mb-4 text-left">
+            <h2 className="text-2xl font-bold text-white mb-4 text-center">
               Select Date and Time Range (UTC+00)
             </h2>
 
             <div className="flex flex-col gap-4 items-center justify-center">
               {/* Start Date/Time Section */}
               <div className="w-full text-center">
-                <label className="block text-xl font-medium text-white">
+                <label className="block text-xl font-medium text-white mb-2">
                   Start Date and Time
                 </label>
                 <DatePicker
@@ -91,7 +92,6 @@ export const DateRangePicker = ({
                   className="mt-2 block w-full rounded-md border-blue-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-lg bg-white text-blue-800 text-center"
                   placeholderText="Select start time (UTC)"
                   popperClassName="z-50"
-                  timeFormat="HH:mm"
                 />
                 {startTime && startDate && (
                   <div className="text-white mt-2">
@@ -103,7 +103,7 @@ export const DateRangePicker = ({
 
               {/* End Date/Time Section */}
               <div className="w-full text-center">
-                <label className="block text-xl font-medium text-white">
+                <label className="block text-xl font-medium text-white mb-2">
                   End Date and Time
                 </label>
                 <DatePicker
@@ -125,7 +125,6 @@ export const DateRangePicker = ({
                   className="mt-2 block w-full rounded-md border-blue-300 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-lg bg-white text-blue-800 text-center"
                   placeholderText="Select end time (UTC)"
                   popperClassName="z-50"
-                  timeFormat="HH:mm"
                 />
                 {endTime && endDate && (
                   <div className="text-white mt-2">
@@ -135,7 +134,7 @@ export const DateRangePicker = ({
               </div>
 
               {/* Error Message */}
-              {error && <div className="text-red-500">{error}</div>}
+              {error && <div className="text-red-500 text-center">{error}</div>}
 
               {/* Submit Button */}
               <div className="flex justify-center space-x-4 mt-4">
@@ -175,7 +174,7 @@ export const DateRangePicker = ({
                       setError("Please select both dates and times.");
                     }
                   }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
                 >
                   Get Trading History
                 </button>

@@ -128,6 +128,8 @@
 //   oracleAccountPriceExponent: number;
 // }
 
+import { calculatePnLMetrics } from "@/src/lib/utils/pnlAnalytics";
+
 // Base Types for Market Information
 export interface MarketInfo {
   name: string;
@@ -190,6 +192,10 @@ export interface TradingData {
 // Trading History Types
 export interface TradingHistoryProps {
   address: string;
+  state: DashboardState;
+  setState: (state: DashboardState) => void;
+  timeRange: TimeRange;
+  setTimeRange: (timeRange: TimeRange) => void;
 }
 
 // Chart Data Types
@@ -336,4 +342,28 @@ export interface FilterConfig {
   side: string;
   minAmount: string;
   maxAmount: string;
+}
+
+export interface DashboardState {
+  startTime: number | null;
+  endTime: number | null;
+  data: any;
+  tradingHistoryData: any;
+  tradingHistory: TradingData[];
+  chartData: ChartDataPoint[];
+  totalFees: number;
+  tradingVolume: number;
+  netPnL: number;
+  grossProfit: number;
+  totalTradingCount: number;
+  winCount: number;
+  lossCount: number;
+  avgTradeSize: number;
+  largestWin: number;
+  largestLoss: number;
+  volumeData: any[];
+  marketDistribution: any[];
+  pnlMetrics: ReturnType<typeof calculatePnLMetrics> | null;
+  loading: boolean;
+  error: string | null;
 }

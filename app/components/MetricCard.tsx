@@ -23,7 +23,7 @@ export default function MetricCard({
 }: MetricCardProps) {
   return (
     <Card
-      className={`transition-all duration-200 hover:shadow-lg ${className}`}
+      className={`transition-all duration-200 shadow-strong ${className}`}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-2">

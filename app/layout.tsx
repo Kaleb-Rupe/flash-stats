@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import { ToastProvider } from "@/app/components/ToastContext";
 import { GeometricBackground } from "@/app/components/GeometricBackground";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

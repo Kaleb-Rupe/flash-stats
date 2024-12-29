@@ -38,12 +38,12 @@ export function CryptoPrices() {
 
   return (
     <div className="flex space-x-4">
-      <div className="flex text-xs items-center justify-center p-1 px-2 border rounded-full shadow-md bg-white dark:bg-gray-800">
+      <div className="flex text-xs items-center justify-center p-1 px-2 shadow-strong">
         <span
           className={
             prices.bitcoin.usd_24h_change >= 0
-              ? "text-green-500"
-              : "text-red-500"
+              ? "font-semibold text-green-500"
+              : "font-semibold text-red-500"
           }
         >
           <strong className="flex items-center justify-center">
@@ -59,12 +59,12 @@ export function CryptoPrices() {
           </strong>
         </span>
       </div>
-      <div className="flex text-xs items-center justify-center p-1 px-2 border rounded-full shadow-md bg-white dark:bg-gray-800">
+      <div className="flex text-xs items-center justify-center p-1 px-2 shadow-strong">
         <span
           className={
             prices.solana.usd_24h_change >= 0
-              ? "text-green-500"
-              : "text-red-500"
+              ? "font-semibold text-green-500"
+              : "font-semibold text-red-500"
           }
         >
           <strong className="flex items-center justify-center">

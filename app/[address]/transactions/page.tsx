@@ -82,9 +82,11 @@ export default function TransactionsPage({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6 mt-24"
     >
-      {/* Header with date range picker */}
-      <div className="flex justify-between items-center">
-        <div>
+      <DashboardLayout
+        layoutType="full-width"
+        header={
+          <div className="flex justify-between items-center">
+            <div>
           <h1 className="text-2xl font-bold">Transaction History</h1>
           <span className="text-gray-500">
             {params.address.slice(0, 4)}...{params.address.slice(-4)}
@@ -94,11 +96,10 @@ export default function TransactionsPage({
           onDateChange={(start, end) => {
             setTimeRange({ start, end });
           }}
-        />
-      </div>
-
-      {/* Transaction table */}
-      <DashboardLayout layoutType="full-width">
+            />
+          </div>
+        }
+      >
         <div className="space-y-8">
           <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm">
             <TradesTable

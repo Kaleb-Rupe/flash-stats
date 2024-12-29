@@ -1,7 +1,10 @@
-/** @type {import('tailwindcss').Config} */
-/* eslint-disable max-len */
-const colors = require("tailwindcss/colors");
-module.exports = {
+import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
+import HeadlessuiPlugin from "@headlessui/tailwindcss";
+import FormsPlugin from "@tailwindcss/forms";
+import colors from "tailwindcss/colors";
+
+const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
@@ -100,6 +103,8 @@ module.exports = {
           "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
         "dark-tremor-dropdown":
           "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        strong: "0 10px 30px rgba(0, 0, 0, 0.5)",
+        "link-hover": "0 2px 10px rgba(255, 255, 255, 0.5)",
       },
       borderRadius: {
         "tremor-small": "0.375rem",
@@ -143,5 +148,10 @@ module.exports = {
         /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
     },
   ],
-  plugins: [require("@headlessui/tailwindcss"), require("@tailwindcss/forms")],
+  plugins: [
+    tailwindcssAnimate,
+    HeadlessuiPlugin,
+    FormsPlugin,
+  ],
 };
+export default config;

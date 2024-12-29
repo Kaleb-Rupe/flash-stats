@@ -19,6 +19,14 @@ interface NavLinkProps {
   collapsed: boolean;
 }
 
+const exchanges = [
+  {
+    name: "Flash Trade",
+    href: "https://beast.flash.trade?referral=Beast_2972",
+    icon: BoltIcon,
+  },
+];
+
 function NavLink({
   href,
   icon: Icon,
@@ -81,23 +89,23 @@ export default function Sidebar({
   return (
     <aside
       className={`
-        fixed 
-        bg-[#1C1C27] border-r border-zinc-800
-        transition-all duration-300 ease-in-out
+        tremor-Card-root ring-1 ring-zinc-800 fixed 
+        m-3 rounded-tremor-default
+        bg-tremor-background ring-tremor-ring shadow-tremor-card dark:bg-dark-tremor-background dark:ring-dark-tremor-ring dark:shadow-dark-tremor-card border-tremor-brand dark:border-dark-tremor-brand transition-all duration-300 ease-in-out
         ${isCollapsed ? "w-17" : "w-64"}
-        h-full
-        z-20
+        h-[calc(100vh-25px)]
+        z-20 shadow-strong
       `}
     >
       {/* Logo section */}
       <div
-        className={`p-2 flex items-center ${
+        className={`p-3 mt-1 flex ${
           isCollapsed ? "justify-center" : "justify-between"
         }`}
       >
         <Link href="/">
           <h1
-            className={`text-xl ml-4 font-bold tracking-tight ${
+            className={`text-xl mt-2 ml-4 font-bold tracking-tight ${
               isCollapsed ? "hidden" : "block"
             }`}
           >
@@ -106,7 +114,7 @@ export default function Sidebar({
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-3 rounded-lg hover:bg-zinc-800 transition-colors"
+          className="p-3 rounded-lg hover:bg-zinc-800 transition-colors duration-200"
         >
           {isCollapsed ? (
             <ChevronRightIcon className="w-5 h-5" />
@@ -137,32 +145,45 @@ export default function Sidebar({
       {!isCollapsed && (
         <div className="absolute w-full p-4 border-t border-zinc-800">
           <h3 className="text-sm font-medium text-zinc-400 mb-2">
-            Your Exchanges
+            {exchanges.length > 1 ? "Your Exchanges" : "Exchange"}
           </h3>
           <div className="space-y-2">
             <div className="flex items-center space-x-2 px-4 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg cursor-pointer">
               <span className="text-sm">
-                <BoltIcon className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                {exchanges.map((exchange) => (
+                  <Link
+                    href={exchange.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <exchange.icon className="flex items-center w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      <p className=" text-sm">{exchange.name}</p>
+                    </div>
+                  </Link>
+                ))}
               </span>
-              <Link
-                href="https://beast.flash.trade?referral=Beast_2972"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="text-sm">Flash Trade</span>
-              </Link>
             </div>
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <div className="absolute bottom-0 w-full p-4 border-t border-zinc-800">
-        <p className="text-sm text-center text-zinc-400">
-          Made with ❤️ by{" "}
-          <a href="https://twitter.com/@MightieMags">MightyMags</a>
-        </p>
-      </div>
+      {!isCollapsed && (
+        <div className="absolute bottom-0 w-full p-4 border-t border-zinc-800">
+          <p className="text-sm text-center text-zinc-400">
+            Made with ❤️ by{" "}
+            <Link
+              href="https://twitter.com/@MightieMags"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-zinc-200 transition-colors duration-200"
+            >
+              MightyMags
+            </Link>
+          </p>
+        </div>
+      )}
     </aside>
   );
 }
