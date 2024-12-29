@@ -167,9 +167,8 @@ export default function Home() {
             target="_blank"
             className="hover:underline text-yellow-300"
           >
-            Flash Trade
+            Flash Trade.
           </Link>
-          .
         </motion.p>
 
         {/* Disclaimer Button */}
@@ -185,7 +184,7 @@ export default function Home() {
           <h2 className="text-lg font-bold mb-4">Disclaimer</h2>
           <p>This project has no affiliation with Flash Trade.</p>
           <p className="mt-4">
-            The site is not perfect, but it's a good start. Any feedback is
+            The site is not perfect, but it&apos;s a good start. Any feedback is
             welcome. If you find any bugs, please report them to{" "}
             <Link
               href="https://twitter.com/MightieMags"

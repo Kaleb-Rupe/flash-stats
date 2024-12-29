@@ -70,16 +70,19 @@ export default function Sidebar({
 
   const navigationItems = [
     {
+      id: "dashboard",
       name: "Dashboard",
       href: `/${address}`,
       icon: HomeIcon,
     },
     {
+      id: "transactions",
       name: "Transactions",
       href: `/${address}/transactions`,
       icon: TableCellsIcon,
     },
     {
+      id: "charts",
       name: "Charts",
       href: `/${address}/charts`,
       icon: ChartBarIcon,
@@ -152,13 +155,14 @@ export default function Sidebar({
               <span className="text-sm">
                 {exchanges.map((exchange) => (
                   <Link
+                    key={exchange.name}
                     href={exchange.href}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <div className="flex items-center space-x-2">
                       <exchange.icon className="flex items-center w-5 h-5 fill-yellow-400 text-yellow-400" />
-                      <p className=" text-sm">{exchange.name}</p>
+                      <p className="text-sm">{exchange.name}</p>
                     </div>
                   </Link>
                 ))}
