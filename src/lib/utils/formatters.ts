@@ -71,11 +71,18 @@ export const formatNumber = (value: number) => {
   }).format(value);
 };
 
-export const formatTimestamp = (timestamp: number) => {
+export const formatTimestampMonthDay = (timestamp: number) => {
   return (
     new Date(Number(timestamp) * 1000).toLocaleString("en-US", {
       month: "short",
       day: "numeric",
+    }) || "Invalid Date"
+  );
+};
+
+export const formatTimestampHourMinute = (timestamp: number) => {
+  return (
+    new Date(Number(timestamp) * 1000).toLocaleString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -178,25 +185,34 @@ export const calculateLargestTrades = (trades: TradingHistoryData[]) => {
 
 export const calculateAvgTradeDuration = (trades: TradingHistoryData[]) => {
   const totalDuration = trades.reduce((total, trade) => {
+    const duration = Number(trade.duration);
     return (
-      total + (trade.tradeType === "CLOSE_POSITION" ? trade.duration || 0 : 0)
+      total +
+      (trade.tradeType === "CLOSE_POSITION"
+        ? isNaN(duration)
+          ? 0
+          : duration
+        : 0)
     );
   }, 0);
 
   const closedTrades = trades.filter(
     (trade) => trade.tradeType === "CLOSE_POSITION"
   );
-  const avgDuration =
-    closedTrades.length > 0 ? totalDuration / closedTrades.length : 0;
 
-  // Determine the appropriate unit
-  if (avgDuration < 60) {
-    return `${avgDuration.toFixed(2)} Seconds`;
-  } else if (avgDuration < 3600) {
-    return `${(avgDuration / 60).toFixed(2)} Minutes`;
-  } else {
-    return `${(avgDuration / 3600).toFixed(2)} Hours`;
+  if (closedTrades.length === 0) {
+    return 0; // Return 0 if no closed trades
   }
+
+  return totalDuration / closedTrades.length; // Return average duration in seconds
+};
+
+export const formatDuration = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  return `${hours}hrs ${minutes}mins ${secs}secs`;
 };
 
 export const calculateLongShortRatios = (trades: TradingHistoryData[]) => {

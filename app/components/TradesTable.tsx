@@ -2,7 +2,8 @@ import { Card } from "@tremor/react";
 import {
   formatMarketValue,
   formatCurrency,
-  formatTimestamp,
+  formatTimestampMonthDay,
+  formatTimestampHourMinute,
 } from "@/src/lib/utils/formatters";
 import { MARKETS } from "@/src/lib/utils/markets";
 import { useState } from "react";
@@ -15,6 +16,9 @@ export default function TradesTable({
 }: TradesTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(trades.length / itemsPerPage);
+  const [activeTradeId, setActiveTradeId] = useState<number | string | null>(
+    null
+  );
 
   const sortedTrades = trades.sort(
     (a, b) => Number(b.timestamp) - Number(a.timestamp)
@@ -25,7 +29,7 @@ export default function TradesTable({
   const currentTrades = sortedTrades.slice(startIndex, endIndex);
 
   return (
-    <Card className="mt-6 shadow-strong">
+    <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Trading History</h3>
         <div className="text-sm text-gray-500">
@@ -36,15 +40,25 @@ export default function TradesTable({
 
       <div className="overflow-x-auto">
         {currentTrades.map((trade) => {
-          const date = formatTimestamp(trade.timestamp);
+          const dateMonthDay = formatTimestampMonthDay(trade.timestamp);
+          const dateHourMinute = formatTimestampHourMinute(trade.timestamp);
           const feeInUsd = calculateFeeInUsd(trade);
 
           return (
             <TradeDropdown
               key={trade.txId}
               trade={trade}
-              date={date}
+              dateMonthDay={dateMonthDay}
+              dateHourMinute={dateHourMinute}
               feeInUsd={feeInUsd}
+              isOpen={activeTradeId === trade.txId}
+              onToggle={() =>
+                setActiveTradeId(
+                  activeTradeId === trade.txId ? null : trade.txId
+                )
+              }
+              activeTradeId={activeTradeId}
+              setActiveTradeId={setActiveTradeId}
             />
           );
         })}
@@ -69,10 +83,9 @@ export default function TradesTable({
           Next
         </button>
       </div>
-    </Card>
+    </div>
   );
 }
-
 const calculateFeeInUsd = (trade: any) => {
   if (trade.side === "long") {
     return trade.entryPrice || trade.oraclePrice

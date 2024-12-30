@@ -17,19 +17,19 @@ export default function DashboardLayout({
 
   const layoutStyles = {
     metrics: `
-      grid grid-cols-1 
+      grid grid-cols-2
       sm:grid-cols-2 
-      lg:grid-cols-3 
-      gap-4 sm:gap-6 lg:gap-8 
+      lg:grid-cols-4 
+      gap-4 sm:gap-4 lg:gap-4 
       auto-rows-fr
     `,
     charts: `
       grid grid-cols-1 
       lg:grid-cols-2 
-      gap-6 lg:gap-8
+      gap-6 lg:gap-6
       auto-rows-fr
     `,
-    "full-width": "flex flex-col gap-6",
+    "full-width": "flex flex-col gap-6 pb-6",
   };
 
   const containerStyles = {
@@ -51,7 +51,6 @@ export default function DashboardLayout({
         className={`
         ${layoutStyles[layoutType]}
         ${className}
-        py-6
         relative
       `}
       >

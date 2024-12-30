@@ -40,7 +40,7 @@ export const DateRangePicker = ({
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-opacity-70 flex justify-center items-center z-50 m-4">
           <div className="relative bg-gray-800 p-6 rounded-xl shadow-lg max-w-lg mx-auto text-white">
             {/* Close button */}
             <button

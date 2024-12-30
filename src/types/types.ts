@@ -281,6 +281,7 @@ export interface TradesTableProps {
 
 export interface TradingMetricsDisplayProps {
   trades: TradingHistoryData[];
+  address: string;
 }
 
 // Enums for Trade Properties
@@ -293,12 +294,12 @@ export enum TradeType {
   TAKE_PROFIT = "TAKE_PROFIT",
   STOP_LOSS = "STOP_LOSS",
   INCREASE_SIZE = "INCREASE_SIZE",
-  DECREASE_SIZE = "DECREASE_SIZE"
+  DECREASE_SIZE = "DECREASE_SIZE",
 }
 
 export enum TradeSide {
   LONG = "long",
-  SHORT = "short"
+  SHORT = "short",
 }
 
 // Types for Advanced Metrics
@@ -352,6 +353,7 @@ export interface DashboardState {
   tradingHistory: TradingData[];
   chartData: ChartDataPoint[];
   totalFees: number;
+  pnlData: ChartDataPoint[];
   tradingVolume: number;
   netPnL: number;
   grossProfit: number;

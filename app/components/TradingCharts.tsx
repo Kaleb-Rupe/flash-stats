@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import {
   Card,
   LineChart,
@@ -12,6 +12,7 @@ import {
   TabPanel,
 } from "@tremor/react";
 import { formatUSD } from "@/src/lib/utils/formatters";
+import { useMediaQuery } from "react-responsive";
 
 interface TradingChartsProps {
   pnlData: any[];
@@ -24,6 +25,33 @@ export default function TradingCharts({
   volumeData,
   marketDistribution,
 }: TradingChartsProps) {
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const [showMovingAverage, setShowMovingAverage] = useState(false);
+
+  // Initialize selected markets based on marketDistribution
+  const initialSelectedMarkets = marketDistribution.reduce((acc, item) => {
+    acc[item.name] = true; // Set all markets to true by default
+    return acc;
+  }, {} as { [key: string]: boolean });
+
+  const [selectedMarkets, setSelectedMarkets] = useState(
+    initialSelectedMarkets
+  );
+
+  const handleCheckboxChange = (marketName: string) => {
+    setSelectedMarkets((prev: { [key: string]: boolean }) => ({
+      ...prev,
+      [marketName]: !prev[marketName],
+    }));
+  };
+
+  // Filter market distribution based on selected markets
+  const filteredMarketDistribution = useMemo(() => {
+    return marketDistribution.filter(
+      (item: { name: string }) => selectedMarkets[item.name]
+    );
+  }, [marketDistribution, selectedMarkets]);
+
   // Helper function to calculate moving average
   const calculateMovingAverage = (data: any[], period: number = 7) => {
     return data.map((item, index) => {
@@ -40,8 +68,11 @@ export default function TradingCharts({
     });
   };
 
-  // Add moving average to PnL data
-  const enrichedPnlData = calculateMovingAverage(pnlData);
+  // Use useMemo to recalculate enriched PnL data only when pnlData or showMovingAverage changes
+  const enrichedPnlData = useMemo(() => {
+    const dataWithMovingAverage = calculateMovingAverage(pnlData);
+    return dataWithMovingAverage;
+  }, [pnlData, showMovingAverage]);
 
   // Format volume data for better visualization
   const formattedVolumeData = volumeData.map((item) => ({
@@ -59,10 +90,20 @@ export default function TradingCharts({
   return (
     <div className="space-y-6">
       <TabGroup>
-        <TabList className="mt-8">
-          <Tab>PnL Analysis</Tab>
-          <Tab>Volume Analysis</Tab>
-          <Tab>Market Distribution</Tab>
+        <TabList
+          className={`ml-2 border-none ${
+            isMobile ? "flex justify-center" : ""
+          }`}
+        >
+          <Tab className={`${isMobile ? "text-xs" : "text-sm"}`}>
+            PnL Analysis
+          </Tab>
+          <Tab className={`${isMobile ? "text-xs" : "text-sm"}`}>
+            Volume Analysis
+          </Tab>
+          <Tab className={`${isMobile ? "text-xs" : "text-sm"}`}>
+            Market Distribution
+          </Tab>
         </TabList>
 
         <TabPanels>
@@ -70,14 +111,29 @@ export default function TradingCharts({
           <TabPanel>
             <div className="space-y-6">
               <Card>
-                <Title>Cumulative PnL with Moving Average</Title>
+                <div className="flex justify-between">
+                  <Title>Cumulative PnL with Moving Average</Title>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={showMovingAverage}
+                      onChange={() => setShowMovingAverage(!showMovingAverage)}
+                      className="mr-2"
+                    />
+                    <label>Show Moving Average</label>
+                  </div>
+                </div>
                 <LineChart
-                  className="h-72 mt-4"
+                  className="w-auto h-72 mt-4"
                   data={enrichedPnlData}
                   index="date"
-                  categories={["Net PNL", "Moving Average"]}
+                  categories={[
+                    "Net PNL",
+                    ...(showMovingAverage ? ["Moving Average"] : []),
+                  ]}
                   colors={["indigo", "emerald"]}
                   valueFormatter={formatUSD}
+                  yAxisWidth={110}
                   showLegend
                   showAnimation
                 />
@@ -90,12 +146,13 @@ export default function TradingCharts({
               <Card>
                 <Title>Daily PnL Distribution</Title>
                 <BarChart
-                  className="h-72 mt-4"
+                  className="w-auto h-72 mt-4"
                   data={pnlData}
                   index="date"
                   categories={["PNL"]}
                   colors={["blue"]}
                   valueFormatter={formatUSD}
+                  yAxisWidth={110}
                   showAnimation
                 />
               </Card>
@@ -108,12 +165,13 @@ export default function TradingCharts({
               <Card>
                 <Title>Trading Volume Over Time</Title>
                 <BarChart
-                  className="h-72 mt-4"
+                  className="w-auto h-72 mt-4"
                   data={volumeWithCumulative}
                   index="date"
                   categories={["volume"]}
                   colors={["violet"]}
                   valueFormatter={formatUSD}
+                  yAxisWidth={110}
                   showAnimation
                 />
               </Card>
@@ -121,12 +179,13 @@ export default function TradingCharts({
               <Card>
                 <Title>Cumulative Trading Volume</Title>
                 <LineChart
-                  className="h-72 mt-4"
+                  className="w-auto h-72 mt-4"
                   data={volumeWithCumulative}
                   index="date"
                   categories={["cumulativeVolume"]}
                   colors={["rose"]}
                   valueFormatter={formatUSD}
+                  yAxisWidth={110}
                   showAnimation
                 />
               </Card>
@@ -139,8 +198,8 @@ export default function TradingCharts({
               <Title>Trading Volume by Market</Title>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <DonutChart
-                  className="h-80 mt-4"
-                  data={marketDistribution}
+                  className="w-auto h-80 mt-4 lg:mt-12"
+                  data={filteredMarketDistribution}
                   category="value"
                   index="name"
                   valueFormatter={formatUSD}
@@ -151,6 +210,13 @@ export default function TradingCharts({
                     "rose",
                     "cyan",
                     "amber",
+                    "emerald",
+                    "sky",
+                    "blue",
+                    "purple",
+                    "fuchsia",
+                    "pink",
+                    "rose",
                   ]}
                   showAnimation
                 />
@@ -160,10 +226,18 @@ export default function TradingCharts({
                     {marketDistribution.map((item, index) => (
                       <div
                         key={index}
-                        className="flex justify-between items-center"
+                        className="flex items-center justify-between"
                       >
-                        <span className="text-sm">{item.name}</span>
-                        <span className="font-medium">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedMarkets[item.name]}
+                            onChange={() => handleCheckboxChange(item.name)}
+                            className="mr-2"
+                          />
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+                        <span className="font-medium text-sm">
                           {formatUSD(item.value)}
                         </span>
                       </div>

@@ -6,7 +6,6 @@ import { DateRangePicker } from "@/app/components/dateRangePicker";
 import TradingCharts from "@/app/components/TradingCharts";
 import PnLBreakdown from "@/app/components/PnLBreakdown";
 import PositionAnalysis from "@/app/components/PositionAnalysis";
-import { Card } from "@tremor/react";
 import { fetchAndProcessPnLData } from "@/src/lib/services/tradingDataProcessor";
 import { ChartDataPoint } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
@@ -100,40 +99,29 @@ export default function ChartsPage({
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">Trading Analytics</h1>
-          <span className="text-gray-500">
-            {params.address.slice(0, 4)}...{params.address.slice(-4)}
-          </span>
-        </div>
-        <DateRangePicker
-          onDateChange={(start, end) => setTimeRange({ start, end })}
-        />
+              <span className="text-gray-500">
+                {params.address.slice(0, 4)}...{params.address.slice(-4)}
+              </span>
+            </div>
+            <DateRangePicker
+              onDateChange={(start, end) => setTimeRange({ start, end })}
+            />
           </div>
         }
       >
         {/* PnL Chart */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Cumulative PnL</h2>
-          <TradingCharts
-            pnlData={chartData.chartData}
-            volumeData={chartData.volumeData}
-            marketDistribution={chartData.marketDistribution}
-          />
-        </Card>
+        <TradingCharts
+          pnlData={chartData.chartData}
+          volumeData={chartData.volumeData}
+          marketDistribution={chartData.marketDistribution}
+        />
         {/* PnL Breakdown */}
         {chartData.pnlMetrics && (
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">PnL Analysis</h2>
-            <PnLBreakdown metrics={chartData.pnlMetrics} />
-          </Card>
+          <PnLBreakdown metrics={chartData.pnlMetrics} />
         )}
 
         {/* Position Analysis */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Position Analysis</h2>
-          <PositionAnalysis trades={chartData.tradingHistory} />
-        </Card>
-
-        <TradingMetricsDisplay trades={chartData.tradingHistory} />
+        <PositionAnalysis trades={chartData.tradingHistory} />
       </DashboardLayout>
     </motion.div>
   );

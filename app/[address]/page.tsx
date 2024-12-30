@@ -9,11 +9,21 @@ import {
   fetchAndProcessTradingHistoryData,
 } from "@/src/lib/services/tradingDataProcessor";
 import Dashboard from "@/app/components/History";
-import { DashboardState } from "@/src/types/types";
+import { ChartDataPoint, DashboardState } from "@/src/types/types";
+import { useMediaQuery } from "react-responsive";
+import TradingMetricsDisplay from "../components/TradingMetricsDisplay";
 
 interface TimeRange {
   start: number | null;
   end: number | null;
+}
+
+interface ChartPageData {
+  chartData: ChartDataPoint[];
+  volumeData: any[];
+  marketDistribution: any[];
+  tradingHistory: any[];
+  pnlMetrics: any;
 }
 
 export default function DashboardPage({
@@ -21,6 +31,8 @@ export default function DashboardPage({
 }: {
   params: { address: string };
 }) {
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const [chartData, setChartData] = useState<ChartPageData | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>({
     start: null,
     end: null,
@@ -45,10 +57,17 @@ export default function DashboardPage({
     volumeData: [],
     marketDistribution: [],
     pnlMetrics: null,
+    pnlData: [],
     loading: true,
     error: null,
   });
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem("selectedTab");
+      return savedTab ? Number(savedTab) : 0;
+    }
+    return 0; // Default value if not in the browser
+  });
 
   // Fetch trading data with error handling and loading states
   const fetchTradingData = useCallback(async () => {
@@ -69,6 +88,7 @@ export default function DashboardPage({
         ...prev,
         data: pnlData,
         pnlMetrics: pnlData.pnlMetrics,
+        pnlData: pnlData.chartData,
         netPnL: pnlData.netPnL,
         tradingVolume: pnlData.tradingVolume,
         totalFees: pnlData.totalFees,
@@ -86,6 +106,14 @@ export default function DashboardPage({
         tradingHistoryData: historyData,
         loading: false,
       }));
+
+      setChartData({
+        chartData: pnlData.chartData,
+        volumeData: pnlData.volumeData,
+        marketDistribution: pnlData.marketDistribution,
+        tradingHistory: pnlData.tradingHistory,
+        pnlMetrics: pnlData.pnlMetrics,
+      });
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -99,6 +127,11 @@ export default function DashboardPage({
   useEffect(() => {
     fetchTradingData();
   }, [fetchTradingData]);
+
+  useEffect(() => {
+    const savedTab = localStorage.getItem("selectedTab");
+    setSelectedTab(savedTab ? Number(savedTab) : 0);
+  }, []);
 
   if (state.loading) {
     return (
@@ -126,9 +159,11 @@ export default function DashboardPage({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 mt-24"
+      className={`space-y-6 ${isMobile ? "mt-24" : "mt-20"}`}
     >
-      <TabNavigation onTabChange={setSelectedTab} />
+      <div className="flex justify-end px-4 sm:px-6 lg:px-8">
+        <TabNavigation selectedTab={selectedTab} onTabChange={setSelectedTab} />
+      </div>
 
       {selectedTab === 0 && (
         <Dashboard
@@ -139,7 +174,12 @@ export default function DashboardPage({
           setTimeRange={setTimeRange}
         />
       )}
-      {selectedTab === 1 && <div>Performance content goes here</div>}
+      {selectedTab === 1 && (
+        <TradingMetricsDisplay
+          trades={chartData?.tradingHistory || []}
+          address={params.address}
+        />
+      )}
       {selectedTab === 2 && (
         <AnalyticsDashboard tradingData={state.pnlMetrics} />
       )}

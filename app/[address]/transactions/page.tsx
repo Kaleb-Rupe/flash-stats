@@ -101,13 +101,11 @@ export default function TransactionsPage({
         }
       >
         <div className="space-y-8">
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm">
             <TradesTable
               address={params.address}
               itemsPerPage={20}
               trades={tradingHistory}
             />
-          </div>
         </div>
       </DashboardLayout>
     </motion.div>

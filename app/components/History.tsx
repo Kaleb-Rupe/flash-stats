@@ -14,12 +14,11 @@ import TradingStats from "@/app/components/TradingStats";
 import { formatUSD, formatNumber } from "@/src/lib/utils/formatters";
 import { DateRangePicker } from "@/app/components/dateRangePicker";
 import { TradingHistoryProps } from "@/src/types/types";
+import TradingCharts from "./TradingCharts";
 
 export default function Dashboard({
   address,
   state,
-  setState,
-  timeRange,
   setTimeRange,
 }: TradingHistoryProps) {
   if (state.loading) {
@@ -81,31 +80,34 @@ export default function Dashboard({
         <MetricCard
           title="Net Profit"
           value={formatUSD(state.netPnL)}
-          icon={<CurrencyDollarIcon className="w-5 h-5" />}
+          icon={<CurrencyDollarIcon className="w-4 h-4" />}
           isPositive={state.netPnL > 0}
-        />
-        <MetricCard
-          title="Trading Volume"
-          value={formatUSD(state.tradingVolume)}
-          icon={<ChartBarIcon className="w-5 h-5" />}
-          subtitle="Open + Close Position Size"
         />
         <MetricCard
           title="Total Trades"
           value={formatNumber(state.totalTradingCount)}
-          icon={<ScaleIcon className="w-5 h-5" />}
+          icon={<ScaleIcon className="w-4 h-4" />}
         />
         <MetricCard
           title="Gross Profit"
           value={formatUSD(state.grossProfit)}
-          icon={<WalletIcon className="w-5 h-5" />}
+          icon={<WalletIcon className="w-4 h-4" />}
           isPositive={state.grossProfit > 0}
         />
         <MetricCard
           title="Fees Paid"
           value={formatUSD(state.totalFees)}
-          icon={<CurrencyDollarIcon className="w-5 h-5" />}
+          icon={<CurrencyDollarIcon className="w-4 h-4" />}
           isPositive={false}
+        />
+      </DashboardLayout>
+      <DashboardLayout layoutType="charts">
+        <MetricCard
+          title="Trading Volume"
+          value={formatUSD(state.tradingVolume)}
+          icon={<ChartBarIcon className="w-4 h-4" />}
+          subtitle="Open + Close Position Size"
+          className="flex justify-center items-center"
         />
         <TradingStats
           winCount={state.winCount}
@@ -113,6 +115,13 @@ export default function Dashboard({
           avgTradeSize={state.avgTradeSize}
           largestWin={state.largestWin}
           largestLoss={state.largestLoss}
+        />
+      </DashboardLayout>
+      <DashboardLayout layoutType="full-width">
+        <TradingCharts
+          pnlData={state.pnlData}
+          volumeData={state.volumeData}
+          marketDistribution={state.marketDistribution}
         />
       </DashboardLayout>
     </motion.div>

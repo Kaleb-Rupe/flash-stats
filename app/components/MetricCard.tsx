@@ -29,16 +29,16 @@ export default function MetricCard({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             {icon && (
-              <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
+              <div className="p-1 rounded-full bg-gray-100 dark:bg-gray-800">
                 {icon}
               </div>
             )}
-            <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+            <p className="text-tremor-default text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis">
               {title}
             </p>
           </div>
           <p
-            className={`text-2xl font-semibold ${
+            className={`text-lg lg:text-xl font-semibold ${
               isPositive !== undefined
                 ? isPositive
                   ? "text-green-500"

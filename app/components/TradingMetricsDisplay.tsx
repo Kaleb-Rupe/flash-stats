@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "@tremor/react";
+import { motion } from "framer-motion";
 import {
   formatUSD,
   formatNumber,
@@ -12,17 +13,18 @@ import {
 } from "@heroicons/react/24/outline";
 import {
   calculateLongShortRatios,
-  calculateAvgTradeDuration,
+  // calculateAvgTradeDuration,
   calculateTradeResultByTime,
 } from "@/src/lib/utils/formatters";
 import { TradingMetricsDisplayProps } from "@/src/types/types";
-
+import DashboardLayout from "@/app/components/DashboardLayout";
 export default function TradingMetricsDisplay({
   trades,
+  address,
 }: TradingMetricsDisplayProps) {
   // Calculate advanced metrics
   const { longRatio, shortRatio } = calculateLongShortRatios(trades);
-  const avgDuration = calculateAvgTradeDuration(trades);
+  // const avgDuration = calculateAvgTradeDuration(trades);
   const timeResults = calculateTradeResultByTime(trades);
 
   // Helper function for tooltips
@@ -45,13 +47,13 @@ export default function TradingMetricsDisplay({
     isCurrency = false,
   }: {
     title: string;
-    value: number;
+    value: string | number;
     tooltip: string;
     trend?: number;
     isPercentage?: boolean;
     isCurrency?: boolean;
   }) => (
-    <div className="p-4 bg-white dark:bg-zinc-900 rounded-lg">
+    <div className="p-4 ring-1 rounded-tremor-default bg-tremor-background ring-tremor-ring dark:bg-dark-tremor-background dark:ring-dark-tremor-ring border-tremor-brand dark:border-dark-tremor-brand shadow-strong">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -76,104 +78,118 @@ export default function TradingMetricsDisplay({
       </div>
       <p className="mt-2 text-2xl font-semibold">
         {isCurrency
-          ? formatUSD(value)
+          ? formatUSD(Number(value))
           : isPercentage
-          ? `${formatPercentage(value)}%`
-          : formatNumber(value)}
+          ? `${formatPercentage(Number(value))}%`
+          : formatNumber(Number(value))}
       </p>
     </div>
   );
 
   return (
-    <Card className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Trading Style Distribution */}
-        <MetricSection
-          title="Long/Short Ratio"
-          value={longRatio}
-          tooltip="Distribution between long and short positions"
-          isPercentage
-        />
-        <MetricSection
-          title="Short Position Ratio"
-          value={shortRatio}
-          tooltip="Percentage of trades that are short positions"
-          isPercentage
-        />
-
-        {/* Time-based Metrics */}
-        <MetricSection
-          title="Average Trade Duration"
-          value={parseFloat(avgDuration)}
-          tooltip="Average time positions are held"
-          isPercentage={false}
-        />
-
-        {/* Performance by Time */}
-        <div className="col-span-full">
-          <h3 className="text-lg font-medium mb-4">
-            Performance by Time of Day
-          </h3>
-          <div className="grid grid-cols-6 gap-2">
-            {Object.entries(timeResults).map(([hour, pnl]) => (
-              <div
-                key={hour}
-                className={`p-2 rounded ${
-                  pnl >= 0 ? "bg-green-100" : "bg-red-100"
-                }`}
-              >
-                <div className="text-xs text-center text-zinc-500 dark:text-slate-500">
-                  {hour}:00
-                </div>
-                <div className="text-sm font-medium text-center text-zinc-500 dark:text-slate-500">
-                  {formatUSD(pnl)}
-                </div>
-              </div>
-            ))}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6 mt-24"
+    >
+      <DashboardLayout
+        layoutType="full-width"
+        header={
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold">Summary</h1>
+              <span className="text-gray-500">
+                {address.slice(0, 4)}...{address.slice(-4)}
+              </span>
+            </div>
           </div>
-        </div>
-      </div>
+        }
+      >
+        <Card className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            {/* Trading Style Distribution */}
+            <MetricSection
+              title="Long/Short Ratio"
+              value={longRatio}
+              tooltip="Distribution between long and short positions"
+              isPercentage
+            />
+            <MetricSection
+              title="Short Position Ratio"
+              value={shortRatio}
+              tooltip="Percentage of trades that are short positions"
+              isPercentage
+            />
 
-      {/* Additional Stats Summary */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="text-center">
-          <h4 className="text-sm font-medium text-gray-500">
-            Most Active Hours
-          </h4>
-          <p className="mt-1 text-lg font-semibold">
-            {Object.entries(timeResults)
-              .sort(([, a], [, b]) => Math.abs(Number(b)) - Math.abs(Number(a)))
-              .slice(0, 3)
-              .map(([hour]) => `${hour}:00`)
-              .join(", ")}
-          </p>
-        </div>
-        <div className="text-center">
-          <h4 className="text-sm font-medium text-gray-500">
-            Best Trading Hours
-          </h4>
-          <p className="mt-1 text-lg font-semibold">
-            {Object.entries(timeResults)
-              .sort(([, a], [, b]) => Number(b) - Number(a))
-              .slice(0, 3)
-              .map(([hour]) => `${hour}:00`)
-              .join(", ")}
-          </p>
-        </div>
-        <div className="text-center">
-          <h4 className="text-sm font-medium text-gray-500">
-            Trading Consistency
-          </h4>
-          <p className="mt-1 text-lg font-semibold">
-            {(
-              (Object.values(timeResults).filter((pnl) => pnl > 0).length /
-                Object.values(timeResults).length) *
-              100
-            ).toFixed(1)}
-            %
-          </p>
-        </div>
-      </div>
-    </Card>
+            {/* Performance by Time */}
+            <div className="col-span-full">
+              <h3 className="text-lg font-medium mb-4">
+                Performance by Time of Day
+              </h3>
+              <div className="grid grid-cols-6 gap-2">
+                {Object.entries(timeResults).map(([hour, pnl]) => (
+                  <div
+                    key={hour}
+                    className={`p-2 rounded ${
+                      pnl >= 0 ? "bg-green-300" : "bg-red-300"
+                    }`}
+                  >
+                    <div className="text-xs text-center text-black dark:text-black">
+                      {hour}:00
+                    </div>
+                    <div className="text-sm font-medium text-center text-black dark:text-black">
+                      {formatUSD(pnl)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Stats Summary */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <h4 className="text-sm font-medium text-gray-500">
+                Most Active Hours
+              </h4>
+              <p className="mt-1 text-lg font-semibold">
+                {Object.entries(timeResults)
+                  .sort(
+                    ([, a], [, b]) => Math.abs(Number(b)) - Math.abs(Number(a))
+                  )
+                  .slice(0, 3)
+                  .map(([hour]) => `${hour}:00`)
+                  .join(", ")}
+              </p>
+            </div>
+            <div className="text-center">
+              <h4 className="text-sm font-medium text-gray-500">
+                Best Trading Hours
+              </h4>
+              <p className="mt-1 text-lg font-semibold">
+                {Object.entries(timeResults)
+                  .sort(([, a], [, b]) => Number(b) - Number(a))
+                  .slice(0, 3)
+                  .map(([hour]) => `${hour}:00`)
+                  .join(", ")}
+              </p>
+            </div>
+            <div className="text-center">
+              <h4 className="text-sm font-medium text-gray-500">
+                Trading Consistency
+              </h4>
+              <p className="mt-1 text-lg font-semibold">
+                {(
+                  (Object.values(timeResults).filter((pnl) => pnl > 0).length /
+                    Object.values(timeResults).length) *
+                  100
+                ).toFixed(1)}
+                %
+              </p>
+            </div>
+          </div>
+        </Card>
+      </DashboardLayout>
+    </motion.div>
   );
 }
