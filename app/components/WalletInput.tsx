@@ -115,7 +115,7 @@ export default function WalletInput() {
             : "text-2xl md:text-3xl"
         }`}
       >
-        ⚡ Flash Tracker
+        ⚡ Flash Stats
       </h1>
 
       {/* Input Field */}

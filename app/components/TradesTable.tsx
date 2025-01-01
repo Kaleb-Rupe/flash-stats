@@ -1,4 +1,3 @@
-import { Card } from "@tremor/react";
 import {
   formatMarketValue,
   formatCurrency,
@@ -86,7 +85,8 @@ export default function TradesTable({
     </div>
   );
 }
-const calculateFeeInUsd = (trade: any) => {
+
+export const calculateFeeInUsd = (trade: any) => {
   if (trade.side === "long") {
     return trade.entryPrice || trade.oraclePrice
       ? formatCurrency(

@@ -1,37 +1,45 @@
+// app/[address]/layout.tsx
 "use client";
 
-// app/[address]/layout.tsx
+import { useMediaQuery } from "react-responsive";
 import Header from "@/app/components/Header";
 import Sidebar from "@/app/components/Sidebar";
-import { useMediaQuery } from "react-responsive";
-import { useState } from "react";
+import { SidebarProvider } from "@/app/context/SidebarContext";
+import { useSidebar } from "@/app/context/SidebarContext";
+
+import { motion } from "framer-motion";
+
+function MainContent({ children }: { children: React.ReactNode }) {
+  const { isCollapsed } = useSidebar();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
+  return (
+    <motion.div
+      className={`
+        flex-1 transition-all duration-300
+        ${isMobile ? "m-0" : isCollapsed ? "ml-[5rem]" : "ml-[17rem]"}
+      `}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <Header />
+      <main className={`${isMobile ? "mb-20" : ""}`}>{children}</main>
+    </motion.div>
+  );
+}
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-
   return (
-    <div className="flex">
-      {/* Sidebar - Fixed position */}
-      <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-
-      {/* Main content wrapper - Fills remaining space */}
-        <div
-        className={`flex-1 transition-all duration-300 ${
-          isCollapsed ? "ml-[5rem]" : isMobile ? "m-0" : "ml-[17rem]"
-        }`}
-      >
-        {/* Header - Fixed position */}
-        
-          <Header isCollapsed={isCollapsed} />
-
-          {/* Main content - Scrollable with padding for fixed header */}
-          <main className={`${isMobile ? "mb-20" : ""}`}>{children}</main>
-        </div>
-    </div>
+    <SidebarProvider>
+      <div className="flex">
+        <Sidebar />
+        <MainContent>{children}</MainContent>
+      </div>
+    </SidebarProvider>
   );
 }

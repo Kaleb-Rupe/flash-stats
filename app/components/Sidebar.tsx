@@ -1,26 +1,19 @@
 // app/components/Sidebar.tsx
 "use client";
 
-import Link from "next/link";
+import React, { useRef, memo } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { motion, spring } from "framer-motion";
+import { useMediaQuery } from "react-responsive";
 import {
+  HomeIcon,
   ChartBarIcon,
   TableCellsIcon,
-  HomeIcon,
+  ChevronRightIcon,
   BoltIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
-
-interface NavLinkProps {
-  id: string;
-  name: string;
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  isActive: boolean;
-  collapsed: boolean;
-}
+import { useSidebar } from "@/app/context/SidebarContext";
 
 const exchanges = [
   {
@@ -30,18 +23,43 @@ const exchanges = [
   },
 ];
 
-function NavLink({
-  id,
-  name,
-  href,
-  icon: Icon,
-  label,
+// Memoized navigation items
+const navigationItems = [
+  {
+    id: "dashboard",
+    name: "Dashboard",
+    href: (address: string) => `/${address}`,
+    icon: HomeIcon,
+  },
+  {
+    id: "transactions",
+    name: "Transactions",
+    href: (address: string) => `/${address}/transactions`,
+    icon: TableCellsIcon,
+  },
+  {
+    id: "charts",
+    name: "Charts",
+    href: (address: string) => `/${address}/charts`,
+    icon: ChartBarIcon,
+  },
+] as const;
+
+// Memoized navigation link component
+const NavLink = memo(function NavLink({
+  item,
   isActive,
-  collapsed,
-}: NavLinkProps) {
+  isCollapsed,
+  address,
+}: {
+  item: (typeof navigationItems)[number];
+  isActive: boolean;
+  isCollapsed: boolean;
+  address: string;
+}) {
   return (
     <Link
-      href={href}
+      href={item.href(address)}
       className={`
         flex items-center px-4 py-3 text-sm font-medium rounded-lg
         transition-colors duration-200
@@ -51,125 +69,108 @@ function NavLink({
             : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
         }
       `}
+      data-nav-id={item.id}
+      aria-current={isActive ? "page" : undefined}
     >
-      <Icon className={`w-5 h-5 ${collapsed ? "" : "mr-3"}`} />
-      {!collapsed && <span>{label}</span>}
+      <item.icon className={`w-5 h-5 ${isCollapsed ? "" : "mr-3"}`} />
+      {!isCollapsed && <span>{item.name}</span>}
     </Link>
   );
-}
+});
 
-export default function Sidebar({
-  isCollapsed,
-  setIsCollapsed,
-}: {
-  isCollapsed: boolean;
-  setIsCollapsed: (isCollapsed: boolean) => void;
-}) {
+function Sidebar() {
   const pathname = usePathname();
-  const address = pathname.split("/")[1];
-  const [isMobile, setIsMobile] = useState(false);
+  const { isCollapsed, toggleCollapse } = useSidebar();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+  // Extract address from pathname
+  const address = pathname?.split("/")[1] || "";
 
-    handleResize(); // Check on mount
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Don't show sidebar on home page or loading page
+  // Skip rendering on certain pages
   if (pathname === "/" || pathname.includes("/loading")) {
     return null;
   }
 
-  const navigationItems = [
-    {
-      id: "dashboard",
-      name: "Dashboard",
-      href: `/${address}`,
-      icon: HomeIcon,
-    },
-    {
-      id: "transactions",
-      name: "Transactions",
-      href: `/${address}/transactions`,
-      icon: TableCellsIcon,
-    },
-    {
-      id: "charts",
-      name: "Charts",
-      href: `/${address}/charts`,
-      icon: ChartBarIcon,
-    },
-  ];
-
-  return (
-    <div
-      className={`flex flex-col h-screen ${isMobile ? "justify-between" : ""}`}
-    >
-      {/* Sidebar for larger screens */}
-      {!isMobile && (
-        <aside
-          className={`
-            tremor-Card-root ring-1 ring-zinc-800 fixed 
-            m-3 rounded-tremor-default
-            bg-tremor-background ring-tremor-ring shadow-tremor-card dark:bg-dark-tremor-background dark:ring-dark-tremor-ring dark:shadow-dark-tremor-card border-tremor-brand dark:border-dark-tremor-brand transition-all duration-300 ease-in-out
-            ${isCollapsed ? "w-17" : "w-64"}
-            h-[calc(100vh-25px)]
-            z-20 shadow-strong
-          `}
-        >
-          {/* Logo section */}
-          <div
-            className={`p-3 mt-1 flex ${
-              isCollapsed ? "justify-center" : "justify-between"
-            }`}
+  // Render mobile navigation
+  if (isMobile) {
+    return (
+      <nav className="fixed bottom-3 left-3 right-3 bg-white dark:bg-gray-900 rounded-lg flex justify-around p-2 z-20 shadow-strong">
+        {navigationItems.map((item) => (
+          <Link
+            key={item.id}
+            href={item.href(address)}
+            className={`
+              flex flex-col items-center rounded-lg py-2 px-4
+              text-sm font-medium leading-5
+              ${
+                pathname === item.href(address)
+                  ? "text-white"
+                  : "text-gray-400 hover:text-white"
+              }
+            `}
           >
-            <Link href="/">
-              <h1
-                className={`text-xl mt-2 ml-4 font-bold tracking-tight ${
-                  isCollapsed ? "hidden" : "block"
-                }`}
-              >
-                ⚡ Flash Tracker
-              </h1>
+            <item.icon className="w-6 h-6" />
+            <span className="text-xs">{item.name}</span>
+          </Link>
+        ))}
+      </nav>
+    );
+  }
+
+  // Render desktop navigation
+  return (
+    <div ref={sidebarRef} className="h-screen">
+      <motion.nav
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`fixed m-3 h-[calc(100vh-25px)]
+    transition-width duration-300 ease-in-out
+    rounded-tremor-default ring-1 ring-zinc-800
+    bg-tremor-background dark:bg-dark-tremor-background
+    shadow-strong z-20 transform-gpu
+    ${isCollapsed ? "w-17" : "w-64"}`}
+      >
+        {/* Header */}
+        <div
+          className={`p-3 mt-1 flex ${
+            isCollapsed ? "justify-center" : "justify-between"
+          }`}
+        >
+          {!isCollapsed && (
+            <Link href="/" className="text-xl font-bold tracking-tight">
+              ⚡ Flash Stats
             </Link>
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-3 rounded-lg hover:bg-zinc-800 transition-colors duration-200"
+          )}
+          <button
+            onClick={toggleCollapse}
+            className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <motion.div
+              initial={{ rotate: 0 }}
+              animate={{ rotate: isCollapsed ? 0 : 180 }}
+              transition={{ duration: 0 }}
             >
-              {isCollapsed ? (
-                <ChevronRightIcon className="w-5 h-5" />
-              ) : (
-                <ChevronLeftIcon className="w-5 h-5" />
-              )}
-            </button>
-          </div>
+              <ChevronRightIcon className="w-5 h-5" />
+            </motion.div>
+          </button>
+        </div>
 
-          {/* Navigation links */}
-          <nav className="flex-1 px-2 py-4 space-y-1">
-            {navigationItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <NavLink
-                  key={item.id}
-                  id={item.id}
-                  name={item.name}
-                  href={item.href}
-                  icon={item.icon}
-                  label={item.name}
-                  isActive={isActive}
-                  collapsed={isCollapsed}
-                />
-              );
-            })}
-          </nav>
-
+        {/* Navigation */}
+        <div className="px-2 py-4 space-y-1">
+          {navigationItems.map((item) => (
+            <NavLink
+              key={item.id}
+              item={item}
+              isActive={pathname === item.href(address)}
+              isCollapsed={isCollapsed}
+              address={address}
+            />
+          ))}
           {/* Exchange section */}
           {!isCollapsed && (
-            <div className="absolute w-full p-4 border-t border-zinc-800">
+            <div className="w-full p-4 border-t border-zinc-800">
               <h3 className="text-sm font-medium text-zinc-400 mb-2">
                 {exchanges.length > 1 ? "Your Exchanges" : "Exchange"}
               </h3>
@@ -194,48 +195,27 @@ export default function Sidebar({
               </div>
             </div>
           )}
+        </div>
 
-          {/* Footer */}
-          {!isCollapsed && (
-            <div className="absolute bottom-0 w-full p-4 border-t border-zinc-800">
-              <p className="text-sm text-center text-zinc-400">
-                Made with ❤️ by{" "}
-                <Link
-                  href="https://twitter.com/@MightieMags"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-zinc-200 transition-colors duration-200"
-                >
-                  MightyMags
-                </Link>
-              </p>
-            </div>
-          )}
-        </aside>
-      )}
-
-      {/* Bottom navigation for mobile */}
-      {isMobile && (
-        <nav className="fixed bottom-3 left-3 right-3 bg-white rounded-lg flex justify-around p-2 z-20 border-t ring-1 bg-tremor-background ring-tremor-ring dark:bg-dark-tremor-background dark:ring-dark-tremor-ring shadow-strong">
-          {navigationItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
+        {/* Footer */}
+        {!isCollapsed && (
+          <div className="absolute bottom-0 w-full p-4 border-t border-zinc-800">
+            <p className="text-sm text-center text-zinc-400">
+              Made with ❤️ by{" "}
               <Link
-                key={item.id}
-                href={item.href}
-                className={`flex flex-col items-center rounded-lg py-2 px-4 w-[10rem] text-sm font-medium leading-5 focus:outline-none focus:ring-0 ${
-                  isActive
-                    ? "text-white disabled:cursor-not-allowed"
-                    : "text-gray-400 hover:bg-white/[0.12] hover:text-white hover:shadow-strong"
-                }`}
+                href="https://twitter.com/@MightieMags"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-200 transition-duration-200"
               >
-                <item.icon className="w-6 h-6" />
-                <span className="text-xs">{item.name}</span>
+                MightyMags
               </Link>
-            );
-          })}
-        </nav>
-      )}
+            </p>
+          </div>
+        )}
+      </motion.nav>
     </div>
   );
 }
+
+export default memo(Sidebar);

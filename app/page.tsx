@@ -73,13 +73,13 @@ export default function Home() {
           animate={{ scale: 1 }}
           className="text-4xl md:text-[4.5rem] text-center tracking-tighter font-bold"
         >
-          ⚡ Flash Tracker
+          ⚡ Flash Stats
         </motion.h1>
 
         {/* Input Container */}
         <div className="w-full relative">
           <input
-            type="text"
+            type="text-[16px]"
             value={address}
             onChange={(e) => handleAddressChange(e.target.value)}
             onKeyDown={(e) => {
@@ -118,8 +118,8 @@ export default function Home() {
                     : {}
                 }
                 className={`
-                  w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
-                  py-3 md:py-2 px-4 rounded-xl font-medium transition-all
+                  w-full md:w-auto md:absolute md:right-1.5 md:top-1/2 md:-translate-y-1/2 
+                  py-3 md:py-2 px-4 rounded-lg font-medium transition-all
                   disabled:opacity-30 disabled:cursor-not-allowed
                   flex items-center justify-center gap-2
                   ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}

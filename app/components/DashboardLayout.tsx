@@ -13,27 +13,26 @@ export default function DashboardLayout({
   header,
   layoutType = "metrics",
 }: DashboardLayoutProps) {
-  const baseStyles = "w-full px-4 sm:px-6 lg:px-8 mx-auto";
 
   const layoutStyles = {
     metrics: `
       grid grid-cols-2
       sm:grid-cols-2 
       lg:grid-cols-4 
-      gap-4 sm:gap-4 lg:gap-4 
+      gap-4
       auto-rows-fr
     `,
     charts: `
-      grid grid-cols-1 
-      lg:grid-cols-2 
-      gap-6 lg:gap-6
-      auto-rows-fr
+      grid grid-cols-1
+      lg:grid-rows-1
+      gap-4
+      lg:gap-4
     `,
     "full-width": "flex flex-col gap-6 pb-6",
   };
 
   const containerStyles = {
-    metrics: "max-w-7xl",
+    metrics: "max-w-full",
     charts: "max-w-full",
     "full-width": "max-w-full",
   };
@@ -41,29 +40,29 @@ export default function DashboardLayout({
   return (
     <div
       className={`
-      ${baseStyles}
-      ${containerStyles[layoutType]}
-      transition-all duration-200 ease-in-out
-    `}
+        w-full px-4 sm:px-6 lg:px-8
+        mx-auto ${containerStyles[layoutType]}
+        transform-gpu will-change-transform
+        transition-all duration-300 ease-in-out
+      `}
+      style={{
+        // Use CSS transform for better performance
+        transform: `translateX(0)`,
+      }}
     >
-      {header && <div className="mb-4">{header}</div>}
+      {header && (
+        <div className="mb-4 transition-all duration-300 ease-in-out">
+          {header}
+        </div>
+      )}
       <div
         className={`
-        ${layoutStyles[layoutType]}
-        ${className}
-        relative
-      `}
+          ${layoutStyles[layoutType]}
+          ${className}
+          relative
+           duration-300 ease-in-out
+        `}
       >
-        {/* Grid overlay for development (hidden in production)
-        {process.env.NODE_ENV === "development" && (
-          <div className="absolute inset-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pointer-events-none opacity-10">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-blue-500 h-full" />
-            ))}
-          </div>
-        )} */}
-
-        {/* Main content */}
         {children}
       </div>
     </div>

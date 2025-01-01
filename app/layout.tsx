@@ -8,8 +8,8 @@ import { GeometricBackground } from "@/app/components/GeometricBackground";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "flash tracker",
-  description: "Analytics dashboard for Flash Trade performance tracking",
+  title: "Flash Stats",
+  description: "Analytics dashboard for Flash Trade performance tracking.",
 };
 
 export default function RootLayout({
