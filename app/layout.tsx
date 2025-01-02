@@ -18,14 +18,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="h-full dark" suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
         />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body
+        className={`${inter.className} flex flex-col h-full overflow-x-hidden`}
+        style={{
+          WebkitOverflowScrolling: "touch",
+          touchAction: "pan-y",
+          WebkitTapHighlightColor: "transparent",
+        }}
+        suppressHydrationWarning
+      >
         <GeometricBackground />
         <ToastProvider>{children}</ToastProvider>
       </body>

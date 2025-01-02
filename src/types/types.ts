@@ -276,7 +276,8 @@ export interface TradingHistoryData {
 export interface TradesTableProps {
   itemsPerPage?: number;
   address: string;
-  trades: TradingHistoryData[];
+  trades: TradingHistoryData[]; 
+  isLoading: boolean;
 }
 
 export interface TradingMetricsDisplayProps {

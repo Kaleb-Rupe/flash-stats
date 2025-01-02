@@ -105,6 +105,7 @@ export default function TransactionsPage({
               address={params.address}
               itemsPerPage={20}
               trades={tradingHistory}
+              isLoading={isLoading}
             />
         </div>
       </DashboardLayout>

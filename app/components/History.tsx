@@ -12,7 +12,6 @@ import TradingStats from "@/app/components/TradingStats";
 import { formatUSD, formatNumber } from "@/src/lib/utils/formatters";
 import { DateRangePicker } from "@/app/components/dateRangePicker";
 import { TradingHistoryProps } from "@/src/types/types";
-import TradingCharts from "./TradingCharts";
 
 // Framer Motion variants for smoother animations
 const pageVariants = {
@@ -157,16 +156,6 @@ export default function Dashboard({
               avgTradeSize={state.avgTradeSize}
               largestWin={state.largestWin}
               largestLoss={state.largestLoss}
-            />
-          </motion.div>
-        </DashboardLayout>
-
-        <DashboardLayout layoutType="full-width">
-          <motion.div variants={cardVariants}>
-            <TradingCharts
-              pnlData={state.pnlData}
-              volumeData={state.volumeData}
-              marketDistribution={state.marketDistribution}
             />
           </motion.div>
         </DashboardLayout>

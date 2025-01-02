@@ -3,6 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+    html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+.no-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome, Opera, and Edge */
+}
+
+@layer base {
     :root {
         /* Custom spacing variables */
         --background: 0 0% 100%;
@@ -69,9 +87,31 @@
 
     }
 
+    * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    *::-webkit-scrollbar {
+        width: 0;
+    }
+
+    html,
+    body {
+        overflow-x: hidden;
+        position: relative;
+    }
+
     /* Smooth scrolling */
     html {
         scroll-behavior: smooth;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     /* Better dark mode transitions */
@@ -133,4 +173,38 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+body>div.flex>div.flex-1.transition-all.duration-300.ml-\[5rem\]>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-300.ease-in-out>div>div>div.tremor-TabPanels-root.w-full>div:nth-child(1)>div:nth-child(1)>div>div>div.w-full.h-80.transform-gpu>div>div>svg>g.recharts-layer.recharts-cartesian-axis.recharts-xAxis.xAxis.mt-4.text-tremor-label.fill-tremor-content.dark\:fill-dark-tremor-content {
+    display: none !important;
+}
+
+body>div.flex>div>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-300.ease-in-out>div>div>div.tremor-TabPanels-root.w-full>div:nth-child(1)>div:nth-child(1)>div>div>div.w-full.h-80.transform-gpu>div>div>svg>g.recharts-layer.recharts-cartesian-axis.recharts-xAxis.xAxis.mt-4.text-tremor-label.fill-tremor-content.dark\:fill-dark-tremor-content {
+    display: none !important;
+}
+
+body>div.flex>div>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-300.ease-in-out>div>div>div.tremor-TabPanels-root.w-full>div:nth-child(2)>div:nth-child(2)>div>div>div>div>div>svg>g.recharts-layer.recharts-cartesian-axis.recharts-xAxis.xAxis.text-tremor-label.fill-tremor-content.dark\:fill-dark-tremor-content {
+    display: none !important;
+}
+
+body>div.flex>div>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-300.ease-in-out>div>div>div.tremor-TabPanels-root.w-full>div:nth-child(1)>div:nth-child(2)>div>div>div>div>div>svg>g.recharts-layer.recharts-cartesian-axis.recharts-xAxis.xAxis.mt-4.text-tremor-label.fill-tremor-content.dark\:fill-dark-tremor-content {
+    display: none !important;
+}
+
+body>div.flex>div>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-300.ease-in-out>div>div>div.tremor-TabPanels-root.w-full>div:nth-child(2)>div:nth-child(1)>div>div>div>div>div>svg>g.recharts-layer.recharts-cartesian-axis.recharts-xAxis.xAxis.mt-4.text-tremor-label.fill-tremor-content.dark\:fill-dark-tremor-content {
+    display: none !important;
+}
+
+.scrollbar-thin {
+    scrollbar-width: 6px;
+    scrollbar-color: transparent transparent;
+}
+
+.no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }

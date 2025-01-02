@@ -1,10 +1,7 @@
-// app/components/Sidebar.tsx
-"use client";
-
-import React, { useRef, memo } from "react";
+import React, { useRef, useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { motion, spring } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useMediaQuery } from "react-responsive";
 import {
   HomeIcon,
@@ -15,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useSidebar } from "@/app/context/SidebarContext";
 
+// Constants moved outside component for better performance
 const exchanges = [
   {
     name: "Flash Trade",
@@ -23,7 +21,6 @@ const exchanges = [
   },
 ];
 
-// Memoized navigation items
 const navigationItems = [
   {
     id: "dashboard",
@@ -45,8 +42,13 @@ const navigationItems = [
   },
 ] as const;
 
-// Memoized navigation link component
-const NavLink = memo(function NavLink({
+// Animation variants
+const sidebarVariants = {
+  expanded: { width: "16rem" },
+  collapsed: { width: "4.5rem" },
+};
+
+const NavLink = React.memo(function NavLink({
   item,
   isActive,
   isCollapsed,
@@ -57,12 +59,14 @@ const NavLink = memo(function NavLink({
   isCollapsed: boolean;
   address: string;
 }) {
+  const Icon = item.icon;
+
   return (
     <Link
       href={item.href(address)}
       className={`
-        flex items-center px-4 py-3 text-sm font-medium rounded-lg
-        transition-colors duration-200
+        group flex items-center px-4 py-3 text-sm font-medium rounded-lg
+        transition-colors duration-200 transform-gpu
         ${
           isActive
             ? "bg-zinc-800 text-white"
@@ -72,8 +76,19 @@ const NavLink = memo(function NavLink({
       data-nav-id={item.id}
       aria-current={isActive ? "page" : undefined}
     >
-      <item.icon className={`w-5 h-5 ${isCollapsed ? "" : "mr-3"}`} />
-      {!isCollapsed && <span>{item.name}</span>}
+      <Icon className={`w-5 h-5 flex-shrink-0 ${isCollapsed ? "" : "mr-3"}`} />
+      <AnimatePresence mode="wait">
+        {!isCollapsed && (
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="truncate"
+          >
+            {item.name}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </Link>
   );
 });
@@ -84,25 +99,30 @@ function Sidebar() {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Extract address from pathname
-  const address = pathname?.split("/")[1] || "";
+  const address = useMemo(() => pathname?.split("/")[1] || "", [pathname]);
 
-  // Skip rendering on certain pages
-  if (pathname === "/" || pathname.includes("/loading")) {
-    return null;
-  }
+  const shouldRender = pathname !== "/" && !pathname.includes("/loading");
 
-  // Render mobile navigation
+  const handleToggle = useCallback(() => {
+    requestAnimationFrame(toggleCollapse);
+  }, [toggleCollapse]);
+
+  if (!shouldRender) return null;
+
   if (isMobile) {
     return (
-      <nav className="fixed bottom-3 left-3 right-3 bg-white dark:bg-gray-900 rounded-lg flex justify-around p-2 z-20 shadow-strong">
+      <motion.nav
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="fixed bottom-3 left-3 right-3 bg-white dark:bg-gray-900 rounded-lg flex justify-around p-2 z-20 shadow-strong"
+      >
         {navigationItems.map((item) => (
           <Link
             key={item.id}
             href={item.href(address)}
             className={`
               flex flex-col items-center rounded-lg py-2 px-4
-              text-sm font-medium leading-5
+              text-sm font-medium leading-5 transform-gpu transition-colors
               ${
                 pathname === item.href(address)
                   ? "text-white"
@@ -114,51 +134,59 @@ function Sidebar() {
             <span className="text-xs">{item.name}</span>
           </Link>
         ))}
-      </nav>
+      </motion.nav>
     );
   }
 
-  // Render desktop navigation
   return (
     <div ref={sidebarRef} className="h-screen">
       <motion.nav
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`fixed m-3 h-[calc(100vh-25px)]
-    transition-width duration-300 ease-in-out
-    rounded-tremor-default ring-1 ring-zinc-800
-    bg-tremor-background dark:bg-dark-tremor-background
-    shadow-strong z-20 transform-gpu
-    ${isCollapsed ? "w-17" : "w-64"}`}
+        layout
+        variants={sidebarVariants}
+        initial={false}
+        animate={isCollapsed ? "collapsed" : "expanded"}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed m-3 h-[calc(100vh-25px)]
+          rounded-tremor-default ring-1 ring-zinc-800
+          bg-tremor-background dark:bg-dark-tremor-background
+          shadow-strong z-20 overflow-hidden"
       >
-        {/* Header */}
         <div
           className={`p-3 mt-1 flex ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
         >
-          {!isCollapsed && (
-            <Link href="/" className="text-xl font-bold tracking-tight">
-              ⚡ Flash Stats
-            </Link>
-          )}
-          <button
-            onClick={toggleCollapse}
-            className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
+          <AnimatePresence mode="popLayout">
+            {!isCollapsed && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="truncate"
+              >
+                <Link href="/" className="text-xl font-bold tracking-tight">
+                  ⚡ Flash Stats
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.button
+            onClick={handleToggle}
+            className="p-2 rounded-lg hover:bg-zinc-800 transition-colors transform-gpu"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
             <motion.div
-              initial={{ rotate: 0 }}
               animate={{ rotate: isCollapsed ? 0 : 180 }}
-              transition={{ duration: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
             >
               <ChevronRightIcon className="w-5 h-5" />
             </motion.div>
-          </button>
+          </motion.button>
         </div>
 
-        {/* Navigation */}
-        <div className="px-2 py-4 space-y-1">
+        <motion.div className="px-2 py-4 space-y-1">
           {navigationItems.map((item) => (
             <NavLink
               key={item.id}
@@ -168,54 +196,53 @@ function Sidebar() {
               address={address}
             />
           ))}
-          {/* Exchange section */}
-          {!isCollapsed && (
-            <div className="w-full p-4 border-t border-zinc-800">
-              <h3 className="text-sm font-medium text-zinc-400 mb-2">
-                {exchanges.length > 1 ? "Your Exchanges" : "Exchange"}
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 px-4 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg cursor-pointer">
-                  <span className="text-sm">
-                    {exchanges.map((exchange) => (
-                      <Link
-                        key={exchange.name}
-                        href={exchange.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <exchange.icon className="flex items-center w-5 h-5 fill-yellow-400 text-yellow-400" />
-                          <p className="text-sm">{exchange.name}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        </motion.div>
 
-        {/* Footer */}
-        {!isCollapsed && (
-          <div className="absolute bottom-0 w-full p-4 border-t border-zinc-800">
-            <p className="text-sm text-center text-zinc-400">
-              Made with ❤️ by{" "}
-              <Link
-                href="https://twitter.com/@MightieMags"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-zinc-200 transition-duration-200"
-              >
-                MightyMags
-              </Link>
-            </p>
-          </div>
-        )}
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-4 truncate"
+            >
+              <div className="w-full p-4 border-t border-zinc-800">
+                <h3 className="text-sm font-medium text-zinc-400 mb-2">
+                  {exchanges.length > 1 ? "Your Exchanges" : "Exchange"}
+                </h3>
+                {exchanges.map((exchange) => (
+                  <Link
+                    key={exchange.name}
+                    href={exchange.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 px-4 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                  >
+                    <exchange.icon className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm">{exchange.name}</span>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="absolute bottom-0 w-full p-4 border-t border-zinc-800">
+                <p className="text-sm text-center text-zinc-400">
+                  Made with ❤️ by{" "}
+                  <Link
+                    href="https://twitter.com/@MightieMags"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-zinc-200 transition-duration-200"
+                  >
+                    MightyMags
+                  </Link>
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
     </div>
   );
 }
 
-export default memo(Sidebar);
+export default React.memo(Sidebar);

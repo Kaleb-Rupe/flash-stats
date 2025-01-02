@@ -8,10 +8,28 @@ import { MARKETS } from "@/src/lib/utils/markets";
 import { useState } from "react";
 import { TradesTableProps } from "@/src/types/types";
 import TradeDropdown from "@/app/components/TradeDropdown";
+import { motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+
+const tableVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const buttonVariants = {
+  hover: { scale: 1.05 },
+  tap: { scale: 0.95 },
+};
 
 export default function TradesTable({
   itemsPerPage = 10,
   trades,
+  isLoading,
 }: TradesTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(trades.length / itemsPerPage);
@@ -28,7 +46,7 @@ export default function TradesTable({
   const currentTrades = sortedTrades.slice(startIndex, endIndex);
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="visible" variants={tableVariants}>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Trading History</h3>
         <div className="text-sm text-gray-500">
@@ -37,52 +55,82 @@ export default function TradesTable({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        {currentTrades.map((trade) => {
-          const dateMonthDay = formatTimestampMonthDay(trade.timestamp);
-          const dateHourMinute = formatTimestampHourMinute(trade.timestamp);
-          const feeInUsd = calculateFeeInUsd(trade);
+      {isLoading ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex justify-center items-center py-10"
+        >
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </motion.div>
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-x-auto"
+          >
+            {currentTrades.map((trade) => {
+              const dateMonthDay = formatTimestampMonthDay(trade.timestamp);
+              const dateHourMinute = formatTimestampHourMinute(trade.timestamp);
+              const feeInUsd = calculateFeeInUsd(trade);
 
-          return (
-            <TradeDropdown
-              key={trade.txId}
-              trade={trade}
-              dateMonthDay={dateMonthDay}
-              dateHourMinute={dateHourMinute}
-              feeInUsd={feeInUsd}
-              isOpen={activeTradeId === trade.txId}
-              onToggle={() =>
-                setActiveTradeId(
-                  activeTradeId === trade.txId ? null : trade.txId
-                )
-              }
-              activeTradeId={activeTradeId}
-              setActiveTradeId={setActiveTradeId}
-            />
-          );
-        })}
-      </div>
+              return (
+                <TradeDropdown
+                  key={trade.txId}
+                  trade={trade}
+                  dateMonthDay={dateMonthDay}
+                  dateHourMinute={dateHourMinute}
+                  feeInUsd={calculateFeeInUsd(trade)}
+                  isOpen={activeTradeId === trade.txId}
+                  onToggle={() =>
+                    setActiveTradeId(
+                      activeTradeId === trade.txId ? null : trade.txId
+                    )
+                  }
+                  activeTradeId={activeTradeId}
+                  setActiveTradeId={setActiveTradeId}
+                />
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
+      {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
-        <button
+        <motion.button
+          variants={buttonVariants}
+          whileHover="hover"
+          whileTap="tap"
           onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
           disabled={currentPage === 1}
-          className="px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 disabled:opacity-50"
+          className="px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 disabled:opacity-50 
+            transition-colors duration-200"
         >
           Previous
-        </button>
+        </motion.button>
+
         <span className="text-sm text-gray-500">
           Page {currentPage} of {totalPages}
         </span>
-        <button
+
+        <motion.button
+          variants={buttonVariants}
+          whileHover="hover"
+          whileTap="tap"
           onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
           disabled={currentPage === totalPages}
-          className="px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 disabled:opacity-50"
+          className="px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 disabled:opacity-50 
+            transition-colors duration-200"
         >
           Next
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -117,6 +165,7 @@ export const calculateFeeInUsd = (trade: any) => {
   }
 };
 
+//**
 // const calculateFeeInUsd = (trade: any) => {
 //   const getEntryPrice = () => {
 //     if (trade.entryPrice) {
@@ -164,3 +213,4 @@ export const calculateFeeInUsd = (trade: any) => {
 
 //   return "-";
 // };
+// */

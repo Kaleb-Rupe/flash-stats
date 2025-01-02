@@ -3,13 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { DateRangePicker } from "@/app/components/dateRangePicker";
-import TradingCharts from "@/app/components/TradingCharts";
+import TradingCharts from "@/app/components/TradingCharts/TradingCharts";
 import PnLBreakdown from "@/app/components/PnLBreakdown";
 import PositionAnalysis from "@/app/components/PositionAnalysis";
 import { fetchAndProcessPnLData } from "@/src/lib/services/tradingDataProcessor";
 import { ChartDataPoint } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
-import TradingMetricsDisplay from "@/app/components/TradingMetricsDisplay";
 
 interface TimeRange {
   start: number | null;
@@ -116,12 +115,12 @@ export default function ChartsPage({
           marketDistribution={chartData.marketDistribution}
         />
         {/* PnL Breakdown */}
-        {chartData.pnlMetrics && (
+        {/* {chartData.pnlMetrics && (
           <PnLBreakdown metrics={chartData.pnlMetrics} />
-        )}
+        )} */}
 
         {/* Position Analysis */}
-        <PositionAnalysis trades={chartData.tradingHistory} />
+        {/* <PositionAnalysis trades={chartData.tradingHistory} /> */}
       </DashboardLayout>
     </motion.div>
   );
