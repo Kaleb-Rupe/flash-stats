@@ -31,4 +31,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
   }
 );
 
+// Add display name for better debugging
+Modal.displayName = "Modal";
+
 export default Modal;
