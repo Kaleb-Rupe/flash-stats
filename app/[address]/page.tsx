@@ -159,7 +159,7 @@ export default function DashboardPage({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`space-y-6 ${isMobile ? "mt-24" : "mt-20"}`}
+      className={`space-y-6 ${isMobile ? "mt-24 mb-[7rem]" : "mt-20"}`}
     >
       <div className="flex justify-end px-4 sm:px-6 lg:px-8">
         <TabNavigation selectedTab={selectedTab} onTabChange={setSelectedTab} />

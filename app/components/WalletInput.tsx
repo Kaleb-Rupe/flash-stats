@@ -175,12 +175,13 @@ export default function WalletInput() {
                       }
                     : {}
                 }
-                className={`w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
-                py-3 md:py-2 px-4 rounded-xl
-                font-medium transition-all
-                disabled:opacity-30 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2
-                ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}`}
+                className={`
+                  w-full md:w-auto md:absolute md:right-1.5 md:top-1/2 md:-translate-y-1/2 
+                  py-4 md:py-3 px-6 rounded-lg font-medium transition-all
+                  disabled:opacity-30 disabled:cursor-not-allowed
+                  flex items-center justify-center gap-2
+                  ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}
+                `}
               >
                 {isLoading ? (
                   <>

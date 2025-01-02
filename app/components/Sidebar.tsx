@@ -121,14 +121,16 @@ function Sidebar() {
             key={item.id}
             href={item.href(address)}
             className={`
-              flex flex-col items-center rounded-lg py-2 px-4
-              text-sm font-medium leading-5 transform-gpu transition-colors
-              ${
-                pathname === item.href(address)
-                  ? "text-white"
-                  : "text-gray-400 hover:text-white"
-              }
-            `}
+            flex flex-col items-center rounded-lg py-3 px-4
+            text-sm font-medium leading-5 transform-gpu transition-colors
+            hover:bg-gray-200 dark:hover:bg-gray-800
+            ${
+              pathname === item.href(address)
+                ? "text-white"
+                : "text-gray-400 hover:text-white"
+            }
+          `}
+            aria-label={item.name}
           >
             <item.icon className="w-6 h-6" />
             <span className="text-xs">{item.name}</span>
