@@ -9,6 +9,10 @@ import PositionAnalysis from "@/app/components/PositionAnalysis";
 import { fetchAndProcessPnLData } from "@/src/lib/services/tradingDataProcessor";
 import { ChartDataPoint } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import { Copy } from "lucide-react";
+import { Check } from "lucide-react";
+import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
+import { formatAddress } from "@/src/lib/utils/addressUtils";
 
 interface TimeRange {
   start: number | null;
@@ -35,6 +39,15 @@ export default function ChartsPage({
   const [chartData, setChartData] = useState<ChartPageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { formattedAddress } = formatAddress(params.address);
+  const { copyToClipboard } = useCopyToClipboard();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    copyToClipboard(params.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const fetchChartData = useCallback(async () => {
     try {
@@ -98,8 +111,20 @@ export default function ChartsPage({
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">Trading Analytics</h1>
-              <span className="text-gray-500">
-                {params.address.slice(0, 4)}...{params.address.slice(-4)}
+              <span
+                className="text-white cursor-pointer flex items-center ml-2"
+                onClick={handleCopy}
+                title="Copy Address"
+              >
+                {formattedAddress}
+                {copied ? (
+                  <Check size={16} className="text-[#318231] ml-2" />
+                ) : (
+                  <Copy
+                    size={16}
+                    className="text-white ml-2 opacity-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                )}
               </span>
             </div>
             <DateRangePicker

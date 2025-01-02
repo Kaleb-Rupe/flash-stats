@@ -105,7 +105,7 @@ function Header() {
       )}
 
       {/* User profile section */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 mt-2">
         {!isMobile && <ConnectWalletButton />}
         <ProfileButton />
       </div>

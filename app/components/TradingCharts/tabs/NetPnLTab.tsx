@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MemoizedBarChart } from "../charts";
+import { MemoizedAreaChart, MemoizedBarChart } from "../charts";
 import { formatUSD } from "@/src/lib/utils/formatters";
 import { ChartDataPoint } from "../types";
 import { Card, Title } from "@tremor/react";
@@ -34,16 +34,15 @@ export default function NetPnLTab({
               </button>
             </div>
           </div>
-          <MemoizedBarChart
+          <MemoizedAreaChart
             className="transform-gpu"
             data={enrichedPnlData}
             categories={[
               "Net PNL",
               ...(showMovingAverage ? ["Moving Average"] : []),
             ]}
-            barCategoryGap={isMobile ? undefined : "3%"}
             index="date"
-            colors={["indigo", "emerald"]}
+            colors={["indigo-500", "emerald-500"]}
             valueFormatter={formatUSD}
             yAxisWidth={isMobile ? 85 : 95}
           />

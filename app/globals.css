@@ -197,6 +197,10 @@ body>div.flex>div>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-30
     display: none !important;
 }
 
+body>div.flex>div.flex-1.transition-all.duration-300.ml-\[5rem\]>main>div>div>div.flex.flex-col.gap-6.pb-6.relative.duration-300.ease-in-out>div>div>div.tremor-TabPanels-root.w-full>div:nth-child(1)>div:nth-child(1)>div>div>div.w-full.h-80.transform-gpu>div>div>svg>g.recharts-layer.recharts-cartesian-axis.recharts-xAxis.xAxis.text-tremor-label.fill-tremor-content.dark\:fill-dark-tremor-content {
+    display: none !important;
+}
+
 .scrollbar-thin {
     scrollbar-width: 6px;
     scrollbar-color: transparent transparent;
@@ -220,5 +224,5 @@ button {
 
 button:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+    box-shadow: none;
 }

@@ -7,6 +7,10 @@ import TradesTable from "@/app/components/TradesTable";
 import { fetchAndProcessTradingHistoryData } from "@/src/lib/services/tradingDataProcessor";
 import { TradingHistoryData } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import { formatAddress } from "@/src/lib/utils/addressUtils";
+import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
+import { Check } from "lucide-react";
+import { Copy } from "lucide-react";
 
 // Define our time range interface for better type safety
 interface TimeRange {
@@ -29,6 +33,15 @@ export default function TransactionsPage({
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { formattedAddress } = formatAddress(params.address);
+  const { copyToClipboard } = useCopyToClipboard();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    copyToClipboard(params.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Fetch transaction data with proper error handling
   const fetchTransactionData = useCallback(async () => {
@@ -87,26 +100,38 @@ export default function TransactionsPage({
         header={
           <div className="flex justify-between items-center">
             <div>
-          <h1 className="text-2xl font-bold">Transaction History</h1>
-          <span className="text-gray-500">
-            {params.address.slice(0, 4)}...{params.address.slice(-4)}
-          </span>
-        </div>
-        <DateRangePicker
-          onDateChange={(start, end) => {
-            setTimeRange({ start, end });
-          }}
+              <h1 className="text-2xl font-bold">Trading History</h1>
+              <span
+                className="text-white cursor-pointer flex items-center ml-2"
+                onClick={handleCopy}
+                title="Copy Address"
+              >
+                {formattedAddress}
+                {copied ? (
+                  <Check size={16} className="text-[#318231] ml-2" />
+                ) : (
+                  <Copy
+                    size={16}
+                    className="text-white ml-2 opacity-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                )}
+              </span>
+            </div>
+            <DateRangePicker
+              onDateChange={(start, end) => {
+                setTimeRange({ start, end });
+              }}
             />
           </div>
         }
       >
         <div className="space-y-8">
-            <TradesTable
-              address={params.address}
-              itemsPerPage={20}
-              trades={tradingHistory}
-              isLoading={isLoading}
-            />
+          <TradesTable
+            address={params.address}
+            itemsPerPage={20}
+            trades={tradingHistory}
+            isLoading={isLoading}
+          />
         </div>
       </DashboardLayout>
     </motion.div>

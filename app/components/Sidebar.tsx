@@ -1,8 +1,9 @@
-import React, { useRef, useCallback, useMemo } from "react";
+import React, { useRef, useCallback, useMemo, memo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMediaQuery } from "react-responsive";
+import { ClientOnly } from "@/app/components/ClientOnly";
 import {
   HomeIcon,
   ChartBarIcon,
@@ -27,6 +28,7 @@ const navigationItems = [
     name: "Dashboard",
     href: (address: string) => `/${address}`,
     icon: HomeIcon,
+    className: "",
   },
   {
     id: "transactions",
@@ -93,7 +95,7 @@ const NavLink = React.memo(function NavLink({
   );
 });
 
-function Sidebar() {
+function SidebarContent() {
   const pathname = usePathname();
   const { isCollapsed, toggleCollapse } = useSidebar();
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
@@ -121,19 +123,18 @@ function Sidebar() {
             key={item.id}
             href={item.href(address)}
             className={`
-            flex flex-col items-center rounded-lg py-3 px-4
-            text-sm font-medium leading-5 transform-gpu transition-colors
-            hover:bg-gray-200 dark:hover:bg-gray-800
-            ${
-              pathname === item.href(address)
-                ? "text-white"
-                : "text-gray-400 hover:text-white"
-            }
-          `}
+    flex flex-col items-center rounded-lg py-4 px-4
+    text-sm font-medium leading-5 transform-gpu transition-colors
+    hover:bg-gray-200 dark:hover:bg-gray-800 group
+    ${pathname === item.href(address) ? "text-white" : "text-gray-400"}
+    w-full h-full
+  `}
             aria-label={item.name}
           >
-            <item.icon className="w-6 h-6" />
-            <span className="text-xs">{item.name}</span>
+            <div className="flex flex-col items-center justify-center">
+              <item.icon className="w-6 h-6 group" />
+              <span className="text-xs ml-1">{item.name}</span>
+            </div>
           </Link>
         ))}
       </motion.nav>
@@ -154,7 +155,7 @@ function Sidebar() {
           shadow-strong z-20 overflow-hidden"
       >
         <div
-          className={`p-3 mt-1 flex ${
+          className={`p-3 mt-1 flex items-center justify-center ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
         >
@@ -174,7 +175,7 @@ function Sidebar() {
           </AnimatePresence>
           <motion.button
             onClick={handleToggle}
-            className="p-2 rounded-lg hover:bg-zinc-800 transition-colors transform-gpu"
+            className="p-2 rounded-lg transition-colors transform-gpu"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
@@ -247,4 +248,10 @@ function Sidebar() {
   );
 }
 
-export default React.memo(Sidebar);
+export default function Sidebar() {
+  return (
+    <ClientOnly>
+      <SidebarContent />
+    </ClientOnly>
+  );
+}

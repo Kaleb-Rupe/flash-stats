@@ -48,7 +48,8 @@ export default function TradesTable({
   return (
     <motion.div initial="hidden" animate="visible" variants={tableVariants}>
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">Trading History</h3>
+        <h3 className="text-lg font-medium" aria-label="Trading History" aria-hidden="true">
+        </h3>
         <div className="text-sm text-gray-500">
           Showing {startIndex + 1}-{Math.min(endIndex, trades.length)} of{" "}
           {trades.length} trades

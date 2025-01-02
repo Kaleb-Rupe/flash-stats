@@ -12,6 +12,12 @@ import Dashboard from "@/app/components/History";
 import { ChartDataPoint, DashboardState } from "@/src/types/types";
 import { useMediaQuery } from "react-responsive";
 import TradingMetricsDisplay from "../components/TradingMetricsDisplay";
+import { DateRangePicker } from "@/app/components/dateRangePicker";
+import { Copy } from "lucide-react";
+import DashboardLayout from "../components/DashboardLayout";
+import { Check } from "lucide-react";
+import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
+import { formatAddress } from "@/src/lib/utils/addressUtils";
 
 interface TimeRange {
   start: number | null;
@@ -33,6 +39,16 @@ export default function DashboardPage({
 }) {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const [chartData, setChartData] = useState<ChartPageData | null>(null);
+  const { formattedAddress } = formatAddress(params.address);
+  const { copyToClipboard } = useCopyToClipboard();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    copyToClipboard(params.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const [timeRange, setTimeRange] = useState<TimeRange>({
     start: null,
     end: null,
@@ -75,11 +91,11 @@ export default function DashboardPage({
 
     try {
       const [pnlData, historyData] = await Promise.all([
-        fetchAndProcessPnLData(params.address, state.startTime, state.endTime),
+        fetchAndProcessPnLData(params.address, timeRange.start, timeRange.end),
         fetchAndProcessTradingHistoryData(
           params.address,
-          state.startTime,
-          state.endTime
+          timeRange.start,
+          timeRange.end
         ),
       ]);
 
@@ -122,7 +138,7 @@ export default function DashboardPage({
       }));
       console.error("Failed to fetch trading data:", error);
     }
-  }, [params.address, state.startTime, state.endTime]);
+  }, [params.address, timeRange.start, timeRange.end]);
 
   useEffect(() => {
     fetchTradingData();
@@ -165,6 +181,32 @@ export default function DashboardPage({
         <TabNavigation selectedTab={selectedTab} onTabChange={setSelectedTab} />
       </div>
 
+      
+      <div className="flex justify-between items-center px-6 sm:px-8 lg:px-10">
+        <div>
+          <h1 className="text-2xl font-bold">Summary</h1>
+          <span
+            className="text-white cursor-pointer flex items-center ml-2"
+            onClick={handleCopy}
+            title="Copy Address"
+          >
+            {formattedAddress}
+            {copied ? (
+              <Check size={16} className="text-[#318231] ml-2" />
+            ) : (
+              <Copy
+                size={16}
+                className="text-white ml-2 opacity-100 opacity-0 group-hover:opacity-100 transition-opacity"
+              />
+            )}
+          </span>
+        </div>
+        <DateRangePicker
+          onDateChange={(start, end) => {
+            setTimeRange({ start, end });
+          }}
+        />
+      </div>
       {selectedTab === 0 && (
         <Dashboard
           address={params.address}

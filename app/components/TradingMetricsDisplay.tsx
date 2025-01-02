@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@tremor/react";
 import { motion } from "framer-motion";
 import {
@@ -18,6 +18,10 @@ import {
 } from "@/src/lib/utils/formatters";
 import { TradingMetricsDisplayProps } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import { formatAddress } from "@/src/lib/utils/addressUtils";
+import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
+import { Check, Copy } from "lucide-react";
+
 export default function TradingMetricsDisplay({
   trades,
   address,
@@ -26,6 +30,15 @@ export default function TradingMetricsDisplay({
   const { longRatio, shortRatio } = calculateLongShortRatios(trades);
   // const avgDuration = calculateAvgTradeDuration(trades);
   const timeResults = calculateTradeResultByTime(trades);
+  const { formattedAddress } = formatAddress(address);
+  const { copyToClipboard } = useCopyToClipboard();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    copyToClipboard(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Helper function for tooltips
   const Tooltip = ({ content }: { content: string }) => (
@@ -97,9 +110,21 @@ export default function TradingMetricsDisplay({
         header={
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold">Summary</h1>
-              <span className="text-gray-500">
-                {address.slice(0, 4)}...{address.slice(-4)}
+              <h1 className="text-2xl font-bold">Trading Metrics</h1>
+              <span
+                className="text-white cursor-pointer flex items-center ml-2"
+                onClick={handleCopy}
+                title="Copy Address"
+              >
+                {formattedAddress}
+                {copied ? (
+                  <Check size={16} className="text-[#318231] ml-2" />
+                ) : (
+                  <Copy
+                    size={16}
+                    className="text-white ml-2 opacity-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                )}
               </span>
             </div>
           </div>

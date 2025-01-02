@@ -1,5 +1,5 @@
 import React from "react";
-import { MemoizedBarChart } from "../charts";
+import { MemoizedAreaChart, MemoizedBarChart } from "../charts";
 import { formatUSD } from "@/src/lib/utils/formatters";
 import { ChartDataPoint } from "../types";
 import { Card, Title } from "@tremor/react";
@@ -23,7 +23,7 @@ export default function PnLTab({
       >
         <Card>
           <Title>Daily PnL Distribution</Title>
-          <MemoizedBarChart
+          <MemoizedAreaChart
           className="transform-gpu"
           data={pnlData}
           index="date"

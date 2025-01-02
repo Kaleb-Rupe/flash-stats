@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import MetricCard from "@/app/components/MetricCard";
@@ -10,7 +10,6 @@ import {
 } from "@heroicons/react/24/outline";
 import TradingStats from "@/app/components/TradingStats";
 import { formatUSD, formatNumber } from "@/src/lib/utils/formatters";
-import { DateRangePicker } from "@/app/components/dateRangePicker";
 import { TradingHistoryProps } from "@/src/types/types";
 
 // Framer Motion variants for smoother animations
@@ -48,11 +47,12 @@ const cardVariants = {
 
 const MemoizedMetricCard = memo(MetricCard);
 
-export default function Dashboard({
-  address,
-  state,
-  setTimeRange,
-}: TradingHistoryProps) {
+export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
+  useEffect(() => {
+    // Fetch data based on the timeRange
+    // You might need to create a function to fetch data here
+  }, [timeRange]);
+
   if (state.loading) {
     return (
       <motion.div
@@ -88,24 +88,7 @@ export default function Dashboard({
         exit="exit"
         className="space-y-4 mt-24 transform-gpu"
       >
-        <DashboardLayout
-          layoutType="metrics"
-          header={
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold">Summary</h1>
-                <span className="text-gray-500">
-                  {address.slice(0, 4)}...{address.slice(-4)}
-                </span>
-              </div>
-              <DateRangePicker
-                onDateChange={(start, end) => {
-                  setTimeRange({ start, end });
-                }}
-              />
-            </div>
-          }
-        >
+        <DashboardLayout layoutType="metrics">
           <motion.div variants={cardVariants}>
             <MemoizedMetricCard
               title="Net Profit"

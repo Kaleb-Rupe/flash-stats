@@ -5,7 +5,6 @@ import "@/app/globals.css";
 import { ToastProvider } from "@/app/components/ToastContext";
 import { GeometricBackground } from "@/app/components/GeometricBackground";
 
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -23,16 +22,11 @@ export default function RootLayout({
       <head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=0, user-scalable=false"
+          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
         />
       </head>
       <body
         className={`${inter.className} flex flex-col h-full overflow-x-hidden`}
-        style={{
-          WebkitOverflowScrolling: "touch",
-          touchAction: "manipulation",
-          WebkitTapHighlightColor: "transparent",
-        }}
         suppressHydrationWarning
       >
         <GeometricBackground />
