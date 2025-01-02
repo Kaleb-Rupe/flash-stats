@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { isValidSolanaAddress } from "@/src/lib/utils/validators";
 import { useToast } from "@/app/components/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useMobileInput } from "../hooks/useMobileInput";
 
 export default function WalletInput() {
   const [address, setAddress] = useState("");
@@ -16,7 +15,6 @@ export default function WalletInput() {
   const pathname = usePathname();
   const { showToast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
-  useMobileInput(inputRef);
 
   useEffect(() => {
     // Get current address from pathname
@@ -131,6 +129,7 @@ export default function WalletInput() {
           <input
             ref={inputRef}
             type="text"
+            inputMode="text"
             value={address}
             onChange={(e) => handleAddressChange(e.target.value)}
             onKeyDown={(e) => {
@@ -140,7 +139,7 @@ export default function WalletInput() {
             }}
             className={`
     w-full px-4 py-3 rounded-xl transition-colors focus:ring-0
-    text-base md:text-sm /* Ensures 16px on mobile */
+    text-[16px] /* Remove the responsive text sizing */
     ${
       isValid === true
         ? "border-2 border-green-500 focus:border-green-600"
@@ -150,10 +149,13 @@ export default function WalletInput() {
     }
     bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
     text-ellipsis overflow-hidden whitespace-nowrap
+    mobile-input-defaults
   `}
             style={{
+              fontSize: "16px",
               touchAction: "manipulation",
               WebkitTapHighlightColor: "transparent",
+              WebkitTextSizeAdjust: "none",
             }}
             placeholder="Enter Solana Wallet Address"
             disabled={isLoading}

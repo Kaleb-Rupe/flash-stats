@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import { ToastProvider } from "@/app/components/ToastContext";
 import { GeometricBackground } from "@/app/components/GeometricBackground";
-import { viewport } from "@/app/metadata";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +23,7 @@ export default function RootLayout({
       <head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=0, user-scalable=false"
         />
       </head>
       <body
