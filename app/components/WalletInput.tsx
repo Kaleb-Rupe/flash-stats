@@ -139,7 +139,8 @@ export default function WalletInput() {
             }
             bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
             text-sm md:text-base
-            text-ellipsis overflow-hidden whitespace-nowrap`}
+            text-ellipsis overflow-hidden whitespace-nowrap
+            text-base`}
           placeholder="Enter Solana Wallet Address"
         />
 
