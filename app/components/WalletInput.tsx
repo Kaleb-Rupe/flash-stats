@@ -122,18 +122,23 @@ export default function WalletInput() {
       </h1>
 
       {/* Input Field */}
-      <div className="w-full relative">
-        <input
-          ref={inputRef}
-          type="text"
-          value={address}
-          onChange={(e) => handleAddressChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && isValid) {
-              handleSubmit();
-            }
-          }}
-          className={`
+      <form
+        aria-label="Worthy Form"
+        aria-busy={isLoading}
+        className="w-full text-[18px] max-w-[840px] flex flex-col gap-[15px] items-center mt-8 px-4 md:px-6"
+      >
+        <div className="w-full relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={address}
+            onChange={(e) => handleAddressChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && isValid) {
+                handleSubmit();
+              }
+            }}
+            className={`
     w-full px-4 py-3 rounded-xl transition-colors focus:ring-0
     text-base md:text-sm /* Ensures 16px on mobile */
     ${
@@ -146,59 +151,60 @@ export default function WalletInput() {
     bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
     text-ellipsis overflow-hidden whitespace-nowrap
   `}
-          style={{
-            touchAction: "manipulation",
-            WebkitTapHighlightColor: "transparent",
-          }}
-          placeholder="Enter Solana Wallet Address"
-          disabled={isLoading}
-        />
+            style={{
+              touchAction: "manipulation",
+              WebkitTapHighlightColor: "transparent",
+            }}
+            placeholder="Enter Solana Wallet Address"
+            disabled={isLoading}
+          />
 
-        {/* Button Container */}
-        <div className="mt-3 md:mt-0">
-          {!address || isValid ? (
-            <button
-              onClick={handleSubmit}
-              disabled={!isValid || isLoading}
-              style={
-                isValid
-                  ? {
-                      background:
-                        "linear-gradient(94.61deg,#fffaf3 -4.98%,#fff200 32.6%,#01e1e0 114.17%)",
-                    }
-                  : {}
-              }
-              className={`w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
+          {/* Button Container */}
+          <div className="mt-3 md:mt-0">
+            {!address || isValid ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!isValid || isLoading}
+                style={
+                  isValid
+                    ? {
+                        background:
+                          "linear-gradient(94.61deg,#fffaf3 -4.98%,#fff200 32.6%,#01e1e0 114.17%)",
+                      }
+                    : {}
+                }
+                className={`w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
                 py-3 md:py-2 px-4 rounded-xl
                 font-medium transition-all
                 disabled:opacity-30 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2
                 ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}`}
-            >
-              {isLoading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-xl animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Flash Me ⚡"
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleClear}
-              className="w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-xl animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Flash Me ⚡"
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleClear}
+                className="w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
                 py-3 md:py-2 px-4 rounded-xl
                 font-medium transition-all
                 bg-red-500 hover:bg-red-600 text-white
                 flex items-center justify-center gap-2"
-            >
-              <XMarkIcon className="w-4 h-4" />
-              Clear
-            </button>
-          )}
+              >
+                <XMarkIcon className="w-4 h-4" />
+                Clear
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
