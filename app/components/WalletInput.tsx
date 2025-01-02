@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { isValidSolanaAddress } from "@/src/lib/utils/validators";
 import { useToast } from "@/app/components/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useMobileInput } from "../hooks/useMobileInput";
 
 export default function WalletInput() {
   const [address, setAddress] = useState("");
@@ -14,6 +15,8 @@ export default function WalletInput() {
   const router = useRouter();
   const pathname = usePathname();
   const { showToast } = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+  useMobileInput(inputRef);
 
   useEffect(() => {
     // Get current address from pathname
@@ -121,6 +124,7 @@ export default function WalletInput() {
       {/* Input Field */}
       <div className="w-full relative">
         <input
+          ref={inputRef}
           type="text"
           value={address}
           onChange={(e) => handleAddressChange(e.target.value)}
@@ -129,19 +133,25 @@ export default function WalletInput() {
               handleSubmit();
             }
           }}
-          className={`w-full px-4 py-3 rounded-xl transition-colors focus:ring-0
-            ${
-              isValid === true
-                ? "border-2 border-green-500 focus:border-green-600"
-                : isValid === false
-                ? "border-2 border-red-500 focus:border-red-600"
-                : "border-2 border-zinc-800 focus:border-zinc-700"
-            }
-            bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
-            text-sm md:text-base
-            text-ellipsis overflow-hidden whitespace-nowrap
-            text-base`}
+          className={`
+    w-full px-4 py-3 rounded-xl transition-colors focus:ring-0
+    text-base md:text-sm /* Ensures 16px on mobile */
+    ${
+      isValid === true
+        ? "border-2 border-green-500 focus:border-green-600"
+        : isValid === false
+        ? "border-2 border-red-500 focus:border-red-600"
+        : "border-2 border-zinc-800 focus:border-zinc-700"
+    }
+    bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
+    text-ellipsis overflow-hidden whitespace-nowrap
+  `}
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+          }}
           placeholder="Enter Solana Wallet Address"
+          disabled={isLoading}
         />
 
         {/* Button Container */}

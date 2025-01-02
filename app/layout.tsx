@@ -11,7 +11,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Flash Stats",
   description: "Analytics dashboard for Flash Trade performance tracking.",
-  viewport,
 };
 
 export default function RootLayout({
@@ -24,14 +23,14 @@ export default function RootLayout({
       <head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
         />
       </head>
       <body
         className={`${inter.className} flex flex-col h-full overflow-x-hidden`}
         style={{
           WebkitOverflowScrolling: "touch",
-          touchAction: "pan-y",
+          touchAction: "manipulation",
           WebkitTapHighlightColor: "transparent",
         }}
         suppressHydrationWarning
