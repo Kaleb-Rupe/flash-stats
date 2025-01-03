@@ -15,29 +15,26 @@ export default function LoadingPage({ params }: LoadingPageProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Try to play the video with fallback handling
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // If video fails to play, redirect immediately
+    const currentVideoRef = videoRef.current;
+
+    if (currentVideoRef) {
+      currentVideoRef.play().catch(() => {
         router.replace(`/${params.address}`);
       });
 
-      // When video ends, redirect to the main dashboard
-      videoRef.current.onended = () => {
+      currentVideoRef.onended = () => {
         router.replace(`/${params.address}`);
       };
     }
 
-    // Fallback timer in case video playback issues occur
     const fallbackTimer = setTimeout(() => {
       router.replace(`/${params.address}`);
     }, 4000);
 
-    // Cleanup function
     return () => {
       clearTimeout(fallbackTimer);
-      if (videoRef.current) {
-        videoRef.current.onended = null;
+      if (currentVideoRef) {
+        currentVideoRef.onended = null;
       }
     };
   }, [params.address, router]);
@@ -49,8 +46,7 @@ export default function LoadingPage({ params }: LoadingPageProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 flex items-center justify-center bg-black"
     >
-      <div className="w-full h-full max-w-3xl max-h-screen relative">
-        {/* Loading video */}
+      <div className="w-full h-full relative">
         <video
           ref={videoRef}
           playsInline
@@ -62,11 +58,11 @@ export default function LoadingPage({ params }: LoadingPageProps) {
           <source src="/flashme.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-
-        {/* Fallback loading indicator */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white opacity-20" />
-        </div>
+        {videoRef.current?.play() && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white opacity-20" />
+          </div>
+        )}
       </div>
     </motion.div>
   );

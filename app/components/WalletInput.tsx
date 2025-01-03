@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { isValidSolanaAddress } from "@/src/lib/utils/validators";
-import { useToast } from "@/app/components/ToastContext";
+import { useToast } from "@/app/context/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function WalletInput() {
@@ -14,6 +14,7 @@ export default function WalletInput() {
   const router = useRouter();
   const pathname = usePathname();
   const { showToast } = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Get current address from pathname
@@ -115,79 +116,98 @@ export default function WalletInput() {
             : "text-2xl md:text-3xl"
         }`}
       >
-        ⚡ Flash Tracker
+        ⚡ Flash Stats
       </h1>
 
       {/* Input Field */}
-      <div className="w-full relative">
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => handleAddressChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && isValid) {
-              handleSubmit();
-            }
-          }}
-          className={`w-full px-4 py-3 rounded-xl transition-colors focus:ring-0
-            ${
-              isValid === true
-                ? "border-2 border-green-500 focus:border-green-600"
-                : isValid === false
-                ? "border-2 border-red-500 focus:border-red-600"
-                : "border-2 border-zinc-800 focus:border-zinc-700"
-            }
-            bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
-            text-sm md:text-base
-            text-ellipsis overflow-hidden whitespace-nowrap`}
-          placeholder="Enter Solana Wallet Address"
-        />
-
-        {/* Button Container */}
-        <div className="mt-3 md:mt-0">
-          {!address || isValid ? (
-            <button
-              onClick={handleSubmit}
-              disabled={!isValid || isLoading}
-              style={
-                isValid
-                  ? {
-                      background:
-                        "linear-gradient(94.61deg,#fffaf3 -4.98%,#fff200 32.6%,#01e1e0 114.17%)",
-                    }
-                  : {}
+      <form
+        aria-label="Worthy Form"
+        aria-busy={isLoading}
+        className="w-full text-[18px] max-w-[840px] flex flex-col gap-[15px] items-center mt-8 px-4 md:px-6"
+      >
+        <div className="w-full relative">
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="text"
+            value={address}
+            onChange={(e) => handleAddressChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && isValid) {
+                handleSubmit();
               }
-              className={`w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
-                py-3 md:py-2 px-4 rounded-xl
-                font-medium transition-all
-                disabled:opacity-30 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2
-                ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}`}
-            >
-              {isLoading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-xl animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Flash Me ⚡"
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleClear}
-              className="w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
+            }}
+            className={`
+    w-full px-4 py-3 rounded-xl transition-colors focus:ring-0
+    text-[16px] /* Remove the responsive text sizing */
+    ${
+      isValid === true
+        ? "border-2 border-green-500 focus:border-green-600"
+        : isValid === false
+        ? "border-2 border-red-500 focus:border-red-600"
+        : "border-2 border-zinc-800 focus:border-zinc-700"
+    }
+    bg-zinc-900 text-white placeholder-zinc-500 focus:outline-none
+    text-ellipsis overflow-hidden whitespace-nowrap
+    mobile-input-defaults
+  `}
+            style={{
+              fontSize: "16px",
+              touchAction: "manipulation",
+              WebkitTapHighlightColor: "transparent",
+              WebkitTextSizeAdjust: "none",
+            }}
+            placeholder="Enter Solana Wallet Address"
+            disabled={isLoading}
+          />
+
+          {/* Button Container */}
+          <div className="mt-3 md:mt-0">
+            {!address || isValid ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!isValid || isLoading}
+                style={
+                  isValid
+                    ? {
+                        background:
+                          "linear-gradient(94.61deg,#fffaf3 -4.98%,#fff200 32.6%,#01e1e0 114.17%)",
+                      }
+                    : {}
+                }
+                className={`
+                  w-full md:w-auto md:absolute md:right-1.5 md:top-1/2 md:-translate-y-1/2 
+                  py-4 md:py-3 px-6 rounded-lg font-medium transition-all
+                  disabled:opacity-30 disabled:cursor-not-allowed
+                  flex items-center justify-center gap-2
+                  ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}
+                `}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-xl animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Flash Me ⚡"
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleClear}
+                className="w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
                 py-3 md:py-2 px-4 rounded-xl
                 font-medium transition-all
                 bg-red-500 hover:bg-red-600 text-white
                 flex items-center justify-center gap-2"
-            >
-              <XMarkIcon className="w-4 h-4" />
-              Clear
-            </button>
-          )}
+              >
+                <XMarkIcon className="w-4 h-4" />
+                Clear
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

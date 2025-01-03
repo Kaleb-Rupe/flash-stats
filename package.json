@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "rebuild": "pnpm run build && pnpm install",
     "lint": "next lint"
   },
   "dependencies": {
@@ -19,19 +20,24 @@
     "framer-motion": "^11.15.0",
     "httpie": "^1.1.2",
     "install": "^0.13.0",
+    "lucide-react": "^0.469.0",
     "luxon": "^3.5.0",
-    "next": "14.1.4",
+    "next": "^14.2.22",
     "npm": "^10.9.2",
     "react": "^18.3.1",
     "react-datepicker": "^7.5.0",
     "react-dom": "^18.3.1",
-    "react-financial-charts": "^2.0.1"
+    "react-financial-charts": "^2.0.1",
+    "react-loading-skeleton": "^3.5.0",
+    "react-responsive": "^10.0.0",
+    "react-select": "^5.9.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
     "@types/lodash": "^4.17.13",
     "@types/luxon": "^3.4.2",
-    "@types/node": "^20.17.10",
+    "@types/node": "^20.17.11",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
@@ -40,6 +46,9 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "d3-color": "^3.1.0"
   },
   "packageManager": "pnpm@9.4.0"
 }

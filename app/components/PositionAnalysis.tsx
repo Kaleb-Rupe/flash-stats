@@ -96,6 +96,7 @@ export default function PositionAnalysis({ trades }: PositionAnalysisProps) {
             categories={["Long PnL", "Short PnL"]}
             colors={["emerald", "blue"]}
             valueFormatter={formatUSD}
+            yAxisWidth={100}
             stack
           />
         </Card>

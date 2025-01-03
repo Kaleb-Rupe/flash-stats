@@ -31,7 +31,6 @@ yarn-error.log*
 *.data
 *.json
 *.js
-*.ts
 *.sh
 *.py
 *.rb

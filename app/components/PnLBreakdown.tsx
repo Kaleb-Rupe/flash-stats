@@ -31,6 +31,7 @@ export default function PnLBreakdown({ metrics }: PnLBreakdownProps) {
             categories={["PnL"]}
             colors={["indigo"]}
             valueFormatter={formatUSD}
+            yAxisWidth={100}
           />
         </Card>
 
@@ -43,6 +44,7 @@ export default function PnLBreakdown({ metrics }: PnLBreakdownProps) {
             categories={["PnL"]}
             colors={["violet"]}
             valueFormatter={formatUSD}
+            yAxisWidth={100}
           />
         </Card>
       </div>

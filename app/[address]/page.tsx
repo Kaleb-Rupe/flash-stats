@@ -2,36 +2,28 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import DashboardLayout from "@/app/components/DashboardLayout";
-import MetricCard from "@/app/components/MetricCard";
-import { DateRangePicker } from "@/app/components/dateRangePicker";
-import TradingStats from "@/app/components/TradingStats";
+import AnalyticsDashboard from "@/app/components/AnalyticsDashboard";
+import TabNavigation from "@/app/components/TabNavigation";
 import {
-  CurrencyDollarIcon,
-  ScaleIcon,
-  ChartBarIcon,
-  WalletIcon,
-} from "@heroicons/react/24/outline";
-import { formatUSD, formatNumber } from "@/src/lib/utils/formatters";
-import { fetchAndProcessPnLData } from "@/src/lib/services/tradingDataProcessor";
+  fetchAndProcessPnLData,
+  fetchAndProcessTradingHistoryData,
+} from "@/src/lib/services/tradingDataProcessor";
+import Dashboard from "@/app/components/History";
+import { ChartDataPoint, DashboardState } from "@/src/types/types";
+import { useMediaQuery } from "react-responsive";
+import TradingMetricsDisplay from "@/app/components/TradingMetricsDisplay";
+import { useDateRange } from "@/app/hooks/useDateRange"; // Import the new hook
+import DateRangeModal from "@/app/components/DateRangeModal"; // Import the new modal
+import { Copy, Check } from "lucide-react";
+import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
+import { formatAddress } from "@/src/lib/utils/addressUtils";
 
-// Define our interfaces for better type safety
-interface TimeRange {
-  start: number | null;
-  end: number | null;
-}
-
-interface DashboardMetrics {
-  netPnL: number;
-  tradingVolume: number;
-  totalTradingCount: number;
-  grossProfit: number;
-  totalFees: number;
-  winCount: number;
-  lossCount: number;
-  avgTradeSize: number;
-  largestWin: number;
-  largestLoss: number;
+interface ChartPageData {
+  chartData: ChartDataPoint[];
+  volumeData: any[];
+  marketDistribution: any[];
+  tradingHistory: any[];
+  pnlMetrics: any;
 }
 
 export default function DashboardPage({
@@ -39,48 +31,134 @@ export default function DashboardPage({
 }: {
   params: { address: string };
 }) {
-  const [timeRange, setTimeRange] = useState<TimeRange>({
-    start: null,
-    end: null,
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const [chartData, setChartData] = useState<ChartPageData | null>(null);
+  const { formattedAddress } = formatAddress(params.address);
+  const { copyToClipboard } = useCopyToClipboard();
+  const [copied, setCopied] = useState(false);
+
+  // Initialize the date range hook
+  const {
+    startTime,
+    endTime,
+    isModalOpen,
+    openModal,
+    closeModal,
+    handleDateChange,
+  } = useDateRange((start, end) => {
+    // This callback is called whenever dates change
+    setTimeRange({ start, end });
   });
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboardData = useCallback(async () => {
+  const [timeRange, setTimeRange] = useState({
+    start: null as number | null,
+    end: null as number | null,
+  });
+
+  const [state, setState] = useState<DashboardState>({
+    startTime: null,
+    endTime: null,
+    data: null,
+    tradingHistoryData: null,
+    tradingHistory: [],
+    chartData: [],
+    totalFees: 0,
+    pnlData: [],
+    tradingVolume: 0,
+    netPnL: 0,
+    grossProfit: 0,
+    totalTradingCount: 0,
+    winCount: 0,
+    lossCount: 0,
+    avgTradeSize: 0,
+    largestWin: 0,
+    largestLoss: 0,
+    volumeData: [],
+    marketDistribution: [],
+    pnlMetrics: null,
+    loading: true,
+    error: null,
+  });
+
+  const [selectedTab, setSelectedTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem("selectedTab");
+      return savedTab ? Number(savedTab) : 0;
+    }
+    return 0;
+  });
+
+  const handleCopy = () => {
+    copyToClipboard(params.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Fetch trading data with error handling and loading states
+  const fetchTradingData = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
     try {
-      setIsLoading(true);
-      const data = await fetchAndProcessPnLData(
-        params.address,
-        timeRange.start,
-        timeRange.end
-      );
+      const [pnlData, historyData] = await Promise.all([
+        fetchAndProcessPnLData(params.address, timeRange.start, timeRange.end),
+        fetchAndProcessTradingHistoryData(
+          params.address,
+          timeRange.start,
+          timeRange.end
+        ),
+      ]);
 
-      setMetrics({
-        netPnL: data.netPnL,
-        tradingVolume: data.tradingVolume,
-        totalTradingCount: data.totalTradingCount,
-        grossProfit: data.grossProfit,
-        totalFees: data.totalFees,
-        winCount: data.winCount,
-        lossCount: data.lossCount,
-        avgTradeSize: data.avgTradeSize,
-        largestWin: data.largestWin,
-        largestLoss: data.largestLoss,
+      // Update all state at once to prevent multiple re-renders
+      setState((prev) => ({
+        ...prev,
+        data: pnlData,
+        pnlMetrics: pnlData.pnlMetrics,
+        pnlData: pnlData.chartData,
+        netPnL: pnlData.netPnL,
+        tradingVolume: pnlData.tradingVolume,
+        totalFees: pnlData.totalFees,
+        grossProfit: pnlData.grossProfit,
+        tradingHistory: pnlData.tradingHistory,
+        chartData: pnlData.chartData,
+        totalTradingCount: pnlData.totalTradingCount,
+        winCount: pnlData.winCount,
+        lossCount: pnlData.lossCount,
+        avgTradeSize: pnlData.avgTradeSize,
+        largestWin: pnlData.largestWin,
+        largestLoss: pnlData.largestLoss,
+        volumeData: pnlData.volumeData,
+        marketDistribution: pnlData.marketDistribution,
+        tradingHistoryData: historyData,
+        loading: false,
+      }));
+
+      setChartData({
+        chartData: pnlData.chartData,
+        volumeData: pnlData.volumeData,
+        marketDistribution: pnlData.marketDistribution,
+        tradingHistory: pnlData.tradingHistory,
+        pnlMetrics: pnlData.pnlMetrics,
       });
     } catch (error) {
-      setError("Failed to fetch dashboard data");
-      console.error("Dashboard data fetch error:", error);
-    } finally {
-      setIsLoading(false);
+      setState((prev) => ({
+        ...prev,
+        error: "Failed to fetch trading data.",
+        loading: false,
+      }));
+      console.error("Failed to fetch trading data:", error);
     }
-  }, [params.address, timeRange]);
+  }, [params.address, timeRange.start, timeRange.end]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    fetchTradingData();
+  }, [fetchTradingData]);
 
-  if (isLoading) {
+  useEffect(() => {
+    const savedTab = localStorage.getItem("selectedTab");
+    setSelectedTab(savedTab ? Number(savedTab) : 0);
+  }, []);
+
+  if (state.loading) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -92,10 +170,12 @@ export default function DashboardPage({
     );
   }
 
-  if (error || !metrics) {
+  if (state.error || !state.pnlMetrics) {
     return (
       <div className="text-center py-12">
-        <p className="text-xl text-red-500">{error || "No data available"}</p>
+        <p className="text-xl text-red-500">
+          {state.error || "No data available"}
+        </p>
       </div>
     );
   }
@@ -104,62 +184,64 @@ export default function DashboardPage({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 mt-24"
+      className={`space-y-6 ${isMobile ? "mt-24 mb-[7rem]" : "mt-20"}`}
     >
-      {/* Header Section */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <span className="text-gray-500">
-            {params.address.slice(0, 4)}...{params.address.slice(-4)}
-          </span>
-        </div>
-        <DateRangePicker
-          onDateChange={(start, end) => {
-            setTimeRange({ start, end });
-          }}
-        />
+      <div className="flex justify-end px-4 sm:px-6 lg:px-8">
+        <TabNavigation selectedTab={selectedTab} onTabChange={setSelectedTab} />
       </div>
 
-      {/* Metrics Grid */}
-      <DashboardLayout layoutType="metrics">
-        <MetricCard
-          title="Net Profit"
-          value={formatUSD(metrics.netPnL)}
-          icon={<CurrencyDollarIcon className="w-5 h-5" />}
-          isPositive={metrics.netPnL > 0}
+      <div className="flex justify-between items-center px-6 sm:px-8 lg:px-10">
+        <div>
+          <h1 className="text-2xl font-bold">Summary</h1>
+          <span
+            className="text-white cursor-pointer flex items-center ml-2"
+            onClick={handleCopy}
+            title="Copy Address"
+          >
+            {formattedAddress}
+            {copied ? (
+              <Check size={16} className="text-[#318231] ml-2" />
+            ) : (
+              <Copy
+                size={16}
+                className="text-white ml-2 opacity-100 opacity-0 group-hover:opacity-100 transition-opacity"
+              />
+            )}
+          </span>
+        </div>
+        <button
+          onClick={openModal}
+          className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg bg-[#131a2b] transition duration-300"
+        >
+          Filter by Dates
+        </button>
+      </div>
+
+      {/* Date Range Modal */}
+      <DateRangeModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onDateChange={handleDateChange}
+      />
+
+      {selectedTab === 0 && (
+        <Dashboard
+          address={params.address}
+          state={state}
+          setState={setState}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+          pnlData={state.pnlData}
         />
-        <MetricCard
-          title="Trading Volume"
-          value={formatUSD(metrics.tradingVolume)}
-          icon={<ChartBarIcon className="w-5 h-5" />}
-          subtitle="Open + Close Position Size"
+      )}
+      {selectedTab === 1 && (
+        <TradingMetricsDisplay
+          trades={chartData?.tradingHistory || []}
         />
-        <MetricCard
-          title="Total Trades"
-          value={formatNumber(metrics.totalTradingCount)}
-          icon={<ScaleIcon className="w-5 h-5" />}
-        />
-        <MetricCard
-          title="Gross Profit"
-          value={formatUSD(metrics.grossProfit)}
-          icon={<WalletIcon className="w-5 h-5" />}
-          isPositive={metrics.grossProfit > 0}
-        />
-        <MetricCard
-          title="Fees Paid"
-          value={formatUSD(metrics.totalFees)}
-          icon={<CurrencyDollarIcon className="w-5 h-5" />}
-          isPositive={false}
-        />
-        <TradingStats
-          winCount={metrics.winCount}
-          lossCount={metrics.lossCount}
-          avgTradeSize={metrics.avgTradeSize}
-          largestWin={metrics.largestWin}
-          largestLoss={metrics.largestLoss}
-        />
-      </DashboardLayout>
+      )}
+      {selectedTab === 2 && (
+        <AnalyticsDashboard tradingData={state.pnlMetrics} />
+      )}
     </motion.div>
   );
 }

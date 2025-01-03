@@ -3,15 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { isValidSolanaAddress } from "@/src/lib/utils/validators";
-import { useToast } from "@/app/components/ToastContext";
+import { useToast } from "@/app/context/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
+import Modal from "@/app/components/Modal";
+import Link from "next/link";
 
 export default function Home() {
   // State management for the input form
   const [address, setAddress] = useState("");
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -70,13 +73,13 @@ export default function Home() {
           animate={{ scale: 1 }}
           className="text-4xl md:text-[4.5rem] text-center tracking-tighter font-bold"
         >
-          ⚡ Flash Tracker
+          ⚡ Flash Stats
         </motion.h1>
 
         {/* Input Container */}
         <div className="w-full relative">
           <input
-            type="text"
+            type="text-[16px]"
             value={address}
             onChange={(e) => handleAddressChange(e.target.value)}
             onKeyDown={(e) => {
@@ -115,8 +118,8 @@ export default function Home() {
                     : {}
                 }
                 className={`
-                  w-full md:w-auto md:absolute md:right-2 md:top-1/2 md:-translate-y-1/2 
-                  py-3 md:py-2 px-4 rounded-xl font-medium transition-all
+                  w-full md:w-auto md:absolute md:right-1.5 md:top-1/2 md:-translate-y-1/2 
+                  py-3 md:py-2 px-4 rounded-lg font-medium transition-all
                   disabled:opacity-30 disabled:cursor-not-allowed
                   flex items-center justify-center gap-2
                   ${isValid ? "text-black" : "bg-zinc-800 text-zinc-500"}
@@ -159,24 +162,40 @@ export default function Home() {
           className="dark:text-slate-400 text-slate-700 text-center px-4 text-sm md:text-base"
         >
           This is a beta product designed to help you see your profitability on{" "}
-          <a
-            href="https://beast.flash.trade?referral=Beast_1373"
+          <Link
+            href="https://beast.flash.trade?referral=Beast_2972"
             target="_blank"
-            className="underline"
+            className="hover:underline text-yellow-300"
           >
-            flash trade
-          </a>
-          . It only supports SOL/BTC/ETH at the moment and may be very buggy,
-          please report bugs to{" "}
-          <a
-            href="https://twitter.com/solarnius"
-            target="_blank"
-            className="underline"
-          >
-            @solarnius
-          </a>{" "}
-          on twitter. No guarantees are made about accuracy.
+            Flash Trade.
+          </Link>
         </motion.p>
+
+        {/* Disclaimer Button */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="hover:underline text-yellow-300"
+        >
+          Disclaimer
+        </button>
+
+        {/* Modal for Disclaimer */}
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <h2 className="text-lg font-bold mb-4">Disclaimer</h2>
+          <p>This project has no affiliation with Flash Trade.</p>
+          <p className="mt-4">
+            The site is not perfect, but it&apos;s a good start. Any feedback is
+            welcome. If you find any bugs, please report them to{" "}
+            <Link
+              href="https://twitter.com/MightieMags"
+              target="_blank"
+              className="hover:underline text-yellow-300"
+            >
+              @MightieMags
+            </Link>{" "}
+            on Twitter. No guarantees are made about accuracy.
+          </p>
+        </Modal>
       </div>
     </motion.div>
   );
