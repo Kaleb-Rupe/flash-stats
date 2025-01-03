@@ -1,5 +1,4 @@
 // src/utils/errorHandler.ts
-import { useToast } from "@/app/components/ToastContext";
 import { useState } from "react";
 
 interface ErrorConfig {

@@ -1,4 +1,4 @@
-import { useToast } from "@/app/components/ToastContext";
+import { useToast } from "@/app/context/ToastContext";
 
 export const useCopyToClipboard = () => {
   const { showToast } = useToast();

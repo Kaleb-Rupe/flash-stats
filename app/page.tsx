@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { isValidSolanaAddress } from "@/src/lib/utils/validators";
-import { useToast } from "@/app/components/ToastContext";
+import { useToast } from "@/app/context/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import Modal from "@/app/components/Modal";

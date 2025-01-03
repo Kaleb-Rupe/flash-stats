@@ -129,24 +129,6 @@
     }
 }
 
-/* @layer components {
-    .sidebar-link {
-        @apply flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200;
-    }
-
-    .sidebar-link-active {
-        @apply bg-zinc-800 text-white;
-    }
-
-    .sidebar-link-inactive {
-        @apply text-zinc-400 hover:bg-zinc-800 hover:text-white;
-    }
-
-    .metric-card {
-        @apply bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 transition-all duration-200 hover:shadow-lg;
-    }
-} */
-
 @media (min-width: 768px) {
     ::-webkit-scrollbar {
         display: none;
@@ -212,4 +194,13 @@ body>div.flex>div.flex-1.transition-all.duration-300.ml-\[5rem\]>main>div>div>di
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+.touch-manipulation {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+}
+
+.tap-highlight-transparent {
+    -webkit-tap-highlight-color: transparent;
 }

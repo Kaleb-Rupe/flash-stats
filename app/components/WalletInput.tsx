@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { isValidSolanaAddress } from "@/src/lib/utils/validators";
-import { useToast } from "@/app/components/ToastContext";
+import { useToast } from "@/app/context/ToastContext";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function WalletInput() {
