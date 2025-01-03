@@ -46,7 +46,7 @@ export default function DateRangeModal({
         setEndTime(null);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, rangeType]);
 
   const handleQuickSelect = (value: string) => {
     setRangeType(value);

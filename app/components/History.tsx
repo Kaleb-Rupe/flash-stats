@@ -56,6 +56,11 @@ export default function Dashboard({
 }: TradingHistoryProps & { pnlData: ChartDataPoint[] }) {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
+  const enrichedPnlData = useMemo(
+    () => calculateMovingAverage(pnlData),
+    [pnlData]
+  );
+
   if (state.loading) {
     return (
       <motion.div
@@ -81,11 +86,6 @@ export default function Dashboard({
       </motion.div>
     );
   }
-
-  const enrichedPnlData = useMemo(
-    () => calculateMovingAverage(pnlData),
-    [pnlData]
-  );
 
   const winRate = (state.winCount / (state.winCount + state.lossCount)) * 100 || 0;
 
