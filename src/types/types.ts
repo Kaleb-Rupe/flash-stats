@@ -282,7 +282,6 @@ export interface TradesTableProps {
 
 export interface TradingMetricsDisplayProps {
   trades: TradingHistoryData[];
-  address: string;
 }
 
 // Enums for Trade Properties

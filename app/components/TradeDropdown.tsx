@@ -185,7 +185,7 @@ const TradeDropdown = ({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="p-4 border-t ring-1 bg-tremor-background ring-tremor-ring dark:bg-dark-tremor-background dark:ring-dark-tremor-ring shadow-strong"
+            className="p-4 border-t ring-1 rounded-b-lg bg-tremor-background ring-tremor-ring dark:bg-dark-tremor-background dark:ring-dark-tremor-ring shadow-strong"
           >
             {isMobile ? (
               <div className="flex text-xs flex-col space-y-4">

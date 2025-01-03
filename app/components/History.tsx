@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, Suspense, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import MetricCard from "@/app/components/MetricCard";
@@ -9,8 +9,11 @@ import {
   WalletIcon,
 } from "@heroicons/react/24/outline";
 import TradingStats from "@/app/components/TradingStats";
-import { formatUSD, formatNumber } from "@/src/lib/utils/formatters";
-import { TradingHistoryProps } from "@/src/types/types";
+import { formatUSD, formatNumber, formatPercentage } from "@/src/lib/utils/formatters";
+import { ChartDataPoint, TradingHistoryProps } from "@/src/types/types";
+import NetPnLTab from "./TradingCharts/tabs/NetPnLTab";
+import { calculateMovingAverage } from "./TradingCharts/utils";
+import { useMediaQuery } from "react-responsive";
 
 // Framer Motion variants for smoother animations
 const pageVariants = {
@@ -47,11 +50,11 @@ const cardVariants = {
 
 const MemoizedMetricCard = memo(MetricCard);
 
-export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
-  useEffect(() => {
-    // Fetch data based on the timeRange
-    // You might need to create a function to fetch data here
-  }, [timeRange]);
+export default function Dashboard({
+  state,
+  pnlData,
+}: TradingHistoryProps & { pnlData: ChartDataPoint[] }) {
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   if (state.loading) {
     return (
@@ -79,6 +82,13 @@ export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
     );
   }
 
+  const enrichedPnlData = useMemo(
+    () => calculateMovingAverage(pnlData),
+    [pnlData]
+  );
+
+  const winRate = (state.winCount / (state.winCount + state.lossCount)) * 100 || 0;
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -93,7 +103,7 @@ export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
             <MemoizedMetricCard
               title="Net Profit"
               value={formatUSD(state.netPnL)}
-              icon={<CurrencyDollarIcon className="w-4 h-4" />}
+              trend={state.netPnL}
               isPositive={state.netPnL > 0}
             />
           </motion.div>
@@ -102,13 +112,14 @@ export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
               title="Total Trades"
               value={formatNumber(state.totalTradingCount)}
               icon={<ScaleIcon className="w-4 h-4" />}
+              className="flex justify-center items-center h-full text-center"
             />
           </motion.div>
           <motion.div variants={cardVariants}>
             <MemoizedMetricCard
               title="Gross Profit"
               value={formatUSD(state.grossProfit)}
-              icon={<WalletIcon className="w-4 h-4" />}
+              trend={state.grossProfit}
               isPositive={state.grossProfit > 0}
             />
           </motion.div>
@@ -118,21 +129,29 @@ export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
               value={formatUSD(state.totalFees)}
               icon={<CurrencyDollarIcon className="w-4 h-4" />}
               isPositive={false}
+              className="flex justify-center items-center h-full text-center"
             />
           </motion.div>
-        </DashboardLayout>
-
-        <DashboardLayout layoutType="charts">
+          <motion.div variants={cardVariants}>
+            <MemoizedMetricCard
+              title="Win Rate"
+              value={formatPercentage(winRate)}
+              subtitle={`Wins: ${state.winCount} / Losses: ${state.lossCount}`}
+              trend={winRate}
+              isPositive={winRate > 50}
+              className="h-full"
+            />
+          </motion.div>
           <motion.div variants={cardVariants}>
             <MemoizedMetricCard
               title="Trading Volume"
               value={formatUSD(state.tradingVolume)}
               icon={<ChartBarIcon className="w-4 h-4" />}
               subtitle="Open + Close Position Size"
-              className="flex justify-center items-center"
+              className="flex justify-center items-center h-full text-center"
             />
           </motion.div>
-          <motion.div variants={cardVariants}>
+          <motion.div variants={cardVariants} className="col-span-2">
             <TradingStats
               winCount={state.winCount}
               lossCount={state.lossCount}
@@ -141,6 +160,12 @@ export default function Dashboard({ state, timeRange }: TradingHistoryProps) {
               largestLoss={state.largestLoss}
             />
           </motion.div>
+        </DashboardLayout>
+
+        <DashboardLayout layoutType="full-width">
+          <Suspense fallback={<div>Loading...</div>}>
+            <NetPnLTab enrichedPnlData={enrichedPnlData} isMobile={isMobile} />
+          </Suspense>
         </DashboardLayout>
       </motion.div>
     </AnimatePresence>

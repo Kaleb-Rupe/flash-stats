@@ -87,7 +87,6 @@
 
     html,
     body {
-        overflow-x: hidden;
         position: relative;
         touch-action: manipulation;
         -webkit-text-size-adjust: none;
@@ -130,7 +129,7 @@
     }
 }
 
-@layer components {
+/* @layer components {
     .sidebar-link {
         @apply flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200;
     }
@@ -146,7 +145,7 @@
     .metric-card {
         @apply bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 transition-all duration-200 hover:shadow-lg;
     }
-}
+} */
 
 @media (min-width: 768px) {
     ::-webkit-scrollbar {
@@ -213,16 +212,4 @@ body>div.flex>div.flex-1.transition-all.duration-300.ml-\[5rem\]>main>div>div>di
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
-}
-
-button {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 12px 16px;
-    font-size: 16px;
-}
-
-button:focus {
-    outline: none;
-    box-shadow: none;
 }

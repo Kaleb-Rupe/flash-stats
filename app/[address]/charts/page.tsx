@@ -2,22 +2,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { DateRangePicker } from "@/app/components/dateRangePicker";
 import TradingCharts from "@/app/components/TradingCharts/TradingCharts";
-import PnLBreakdown from "@/app/components/PnLBreakdown";
-import PositionAnalysis from "@/app/components/PositionAnalysis";
 import { fetchAndProcessPnLData } from "@/src/lib/services/tradingDataProcessor";
 import { ChartDataPoint } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
-import { Copy } from "lucide-react";
-import { Check } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
 import { formatAddress } from "@/src/lib/utils/addressUtils";
-
-interface TimeRange {
-  start: number | null;
-  end: number | null;
-}
+import { useDateRange } from "@/app/hooks/useDateRange";
+import DateRangeModal from "@/app/components/DateRangeModal";
 
 interface ChartPageData {
   chartData: ChartDataPoint[];
@@ -32,10 +25,16 @@ export default function ChartsPage({
 }: {
   params: { address: string };
 }) {
-  const [timeRange, setTimeRange] = useState<TimeRange>({
-    start: null,
-    end: null,
-  });
+  // Initialize the date range hook
+  const {
+    startTime,
+    endTime,
+    isModalOpen,
+    openModal,
+    closeModal,
+    handleDateChange,
+  } = useDateRange();
+
   const [chartData, setChartData] = useState<ChartPageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,13 +48,16 @@ export default function ChartsPage({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Fetch and process chart data
   const fetchChartData = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
+
       const data = await fetchAndProcessPnLData(
         params.address,
-        timeRange.start,
-        timeRange.end
+        startTime,
+        endTime
       );
 
       setChartData({
@@ -71,8 +73,9 @@ export default function ChartsPage({
     } finally {
       setIsLoading(false);
     }
-  }, [params.address, timeRange]);
+  }, [params.address, startTime, endTime]);
 
+  // Fetch data when component mounts or date range changes
   useEffect(() => {
     fetchChartData();
   }, [fetchChartData]);
@@ -127,25 +130,28 @@ export default function ChartsPage({
                 )}
               </span>
             </div>
-            <DateRangePicker
-              onDateChange={(start, end) => setTimeRange({ start, end })}
-            />
+            <button
+              onClick={openModal}
+              className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg bg-[#131a2b] transition duration-300"
+            >
+              Filter by Dates
+            </button>
           </div>
         }
       >
-        {/* PnL Chart */}
+        {/* Date Range Modal */}
+        <DateRangeModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onDateChange={handleDateChange}
+        />
+
+        {/* Trading Charts */}
         <TradingCharts
           pnlData={chartData.chartData}
           volumeData={chartData.volumeData}
           marketDistribution={chartData.marketDistribution}
         />
-        {/* PnL Breakdown */}
-        {/* {chartData.pnlMetrics && (
-          <PnLBreakdown metrics={chartData.pnlMetrics} />
-        )} */}
-
-        {/* Position Analysis */}
-        {/* <PositionAnalysis trades={chartData.tradingHistory} /> */}
       </DashboardLayout>
     </motion.div>
   );

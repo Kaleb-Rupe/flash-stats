@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@tremor/react";
 import { motion } from "framer-motion";
 import {
@@ -18,27 +18,14 @@ import {
 } from "@/src/lib/utils/formatters";
 import { TradingMetricsDisplayProps } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
-import { formatAddress } from "@/src/lib/utils/addressUtils";
-import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
-import { Check, Copy } from "lucide-react";
 
 export default function TradingMetricsDisplay({
   trades,
-  address,
 }: TradingMetricsDisplayProps) {
   // Calculate advanced metrics
   const { longRatio, shortRatio } = calculateLongShortRatios(trades);
   // const avgDuration = calculateAvgTradeDuration(trades);
   const timeResults = calculateTradeResultByTime(trades);
-  const { formattedAddress } = formatAddress(address);
-  const { copyToClipboard } = useCopyToClipboard();
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    copyToClipboard(address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   // Helper function for tooltips
   const Tooltip = ({ content }: { content: string }) => (
@@ -105,42 +92,19 @@ export default function TradingMetricsDisplay({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6 mt-24"
     >
-      <DashboardLayout
-        layoutType="full-width"
-        header={
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">Trading Metrics</h1>
-              <span
-                className="text-white cursor-pointer flex items-center ml-2"
-                onClick={handleCopy}
-                title="Copy Address"
-              >
-                {formattedAddress}
-                {copied ? (
-                  <Check size={16} className="text-[#318231] ml-2" />
-                ) : (
-                  <Copy
-                    size={16}
-                    className="text-white ml-2 opacity-100 opacity-0 group-hover:opacity-100 transition-opacity"
-                  />
-                )}
-              </span>
-            </div>
-          </div>
-        }
-      >
+      <DashboardLayout layoutType="full-width">
         <Card className="p-4">
+          <h1 className="text-2xl font-bold mb-4 pl-2">Performance Metrics</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             {/* Trading Style Distribution */}
             <MetricSection
-              title="Long/Short Ratio"
+              title="Long Ratio"
               value={longRatio}
-              tooltip="Distribution between long and short positions"
+              tooltip="Percentage of trades that are long positions"
               isPercentage
             />
             <MetricSection
-              title="Short Position Ratio"
+              title="Short Ratio"
               value={shortRatio}
               tooltip="Percentage of trades that are short positions"
               isPercentage
@@ -151,7 +115,7 @@ export default function TradingMetricsDisplay({
               <h3 className="text-lg font-medium mb-4">
                 Performance by Time of Day
               </h3>
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-4 lg:grid-cols-6 gap-2">
                 {Object.entries(timeResults).map(([hour, pnl]) => (
                   <div
                     key={hour}
@@ -162,7 +126,7 @@ export default function TradingMetricsDisplay({
                     <div className="text-xs text-center text-black dark:text-black">
                       {hour}:00
                     </div>
-                    <div className="text-sm font-medium text-center text-black dark:text-black">
+                    <div className="text-xs lg:text-sm font-medium text-center text-black dark:text-black">
                       {formatUSD(pnl)}
                     </div>
                   </div>
@@ -201,7 +165,7 @@ export default function TradingMetricsDisplay({
             </div>
             <div className="text-center">
               <h4 className="text-sm font-medium text-gray-500">
-                Trading Consistency
+                Trading Consistency by Time
               </h4>
               <p className="mt-1 text-lg font-semibold">
                 {(

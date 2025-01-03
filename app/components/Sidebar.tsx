@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo, memo } from "react";
+import React, { useRef, useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -116,24 +116,26 @@ function SidebarContent() {
       <motion.nav
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="fixed bottom-3 left-3 right-3 bg-white dark:bg-gray-900 rounded-lg flex justify-around p-2 z-20 shadow-strong"
+        className="fixed bottom-3 left-3 right-3 bg-white dark:bg-gray-900 rounded-lg flex justify-around p-2 z-20 shadow-strong touch-action-manipulation"
       >
         {navigationItems.map((item) => (
           <Link
             key={item.id}
             href={item.href(address)}
             className={`
-    flex flex-col items-center rounded-lg py-4 px-4
+    flex flex-col items-center justify-center rounded-lg py-3 px-2
     text-sm font-medium leading-5 transform-gpu transition-colors
     hover:bg-gray-200 dark:hover:bg-gray-800 group
     ${pathname === item.href(address) ? "text-white" : "text-gray-400"}
-    w-full h-full
+    w-full h-full min-h-[64px] active:bg-gray-300 dark:active:bg-gray-700
   `}
             aria-label={item.name}
           >
-            <div className="flex flex-col items-center justify-center">
-              <item.icon className="w-6 h-6 group" />
-              <span className="text-xs ml-1">{item.name}</span>
+            <div className="flex flex-col items-center justify-center w-full h-full">
+              <div className="mb-1">
+                <item.icon className="w-6 h-6" />
+              </div>
+              <span className="text-xs">{item.name}</span>
             </div>
           </Link>
         ))}

@@ -11,18 +11,12 @@ import {
 import Dashboard from "@/app/components/History";
 import { ChartDataPoint, DashboardState } from "@/src/types/types";
 import { useMediaQuery } from "react-responsive";
-import TradingMetricsDisplay from "../components/TradingMetricsDisplay";
-import { DateRangePicker } from "@/app/components/dateRangePicker";
-import { Copy } from "lucide-react";
-import DashboardLayout from "../components/DashboardLayout";
-import { Check } from "lucide-react";
+import TradingMetricsDisplay from "@/app/components/TradingMetricsDisplay";
+import { useDateRange } from "@/app/hooks/useDateRange"; // Import the new hook
+import DateRangeModal from "@/app/components/DateRangeModal"; // Import the new modal
+import { Copy, Check } from "lucide-react";
 import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
 import { formatAddress } from "@/src/lib/utils/addressUtils";
-
-interface TimeRange {
-  start: number | null;
-  end: number | null;
-}
 
 interface ChartPageData {
   chartData: ChartDataPoint[];
@@ -43,16 +37,24 @@ export default function DashboardPage({
   const { copyToClipboard } = useCopyToClipboard();
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    copyToClipboard(params.address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const [timeRange, setTimeRange] = useState<TimeRange>({
-    start: null,
-    end: null,
+  // Initialize the date range hook
+  const {
+    startTime,
+    endTime,
+    isModalOpen,
+    openModal,
+    closeModal,
+    handleDateChange,
+  } = useDateRange((start, end) => {
+    // This callback is called whenever dates change
+    setTimeRange({ start, end });
   });
+
+  const [timeRange, setTimeRange] = useState({
+    start: null as number | null,
+    end: null as number | null,
+  });
+
   const [state, setState] = useState<DashboardState>({
     startTime: null,
     endTime: null,
@@ -61,6 +63,7 @@ export default function DashboardPage({
     tradingHistory: [],
     chartData: [],
     totalFees: 0,
+    pnlData: [],
     tradingVolume: 0,
     netPnL: 0,
     grossProfit: 0,
@@ -73,17 +76,23 @@ export default function DashboardPage({
     volumeData: [],
     marketDistribution: [],
     pnlMetrics: null,
-    pnlData: [],
     loading: true,
     error: null,
   });
+
   const [selectedTab, setSelectedTab] = useState(() => {
     if (typeof window !== "undefined") {
       const savedTab = localStorage.getItem("selectedTab");
       return savedTab ? Number(savedTab) : 0;
     }
-    return 0; // Default value if not in the browser
+    return 0;
   });
+
+  const handleCopy = () => {
+    copyToClipboard(params.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Fetch trading data with error handling and loading states
   const fetchTradingData = useCallback(async () => {
@@ -181,7 +190,6 @@ export default function DashboardPage({
         <TabNavigation selectedTab={selectedTab} onTabChange={setSelectedTab} />
       </div>
 
-      
       <div className="flex justify-between items-center px-6 sm:px-8 lg:px-10">
         <div>
           <h1 className="text-2xl font-bold">Summary</h1>
@@ -201,12 +209,21 @@ export default function DashboardPage({
             )}
           </span>
         </div>
-        <DateRangePicker
-          onDateChange={(start, end) => {
-            setTimeRange({ start, end });
-          }}
-        />
+        <button
+          onClick={openModal}
+          className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg bg-[#131a2b] transition duration-300"
+        >
+          Filter by Dates
+        </button>
       </div>
+
+      {/* Date Range Modal */}
+      <DateRangeModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onDateChange={handleDateChange}
+      />
+
       {selectedTab === 0 && (
         <Dashboard
           address={params.address}
@@ -214,12 +231,12 @@ export default function DashboardPage({
           setState={setState}
           timeRange={timeRange}
           setTimeRange={setTimeRange}
+          pnlData={state.pnlData}
         />
       )}
       {selectedTab === 1 && (
         <TradingMetricsDisplay
           trades={chartData?.tradingHistory || []}
-          address={params.address}
         />
       )}
       {selectedTab === 2 && (

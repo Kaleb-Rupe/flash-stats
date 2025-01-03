@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
 import { TabGroup, Tab, TabList, TabPanels, TabPanel } from "@tremor/react";
 import { useMediaQuery } from "react-responsive";
 import { calculateMovingAverage, formatVolumeData } from "./utils";
@@ -7,7 +7,9 @@ import { calculateMovingAverage, formatVolumeData } from "./utils";
 const PnLTab = React.lazy(() => import("./tabs/PnLTab"));
 const NetPnLTab = React.lazy(() => import("./tabs/NetPnLTab"));
 const VolumeTab = React.lazy(() => import("./tabs/VolumeTab"));
-const CumulativeVolumeTab = React.lazy(() => import("./tabs/CumulativeVolumeTab"));
+const CumulativeVolumeTab = React.lazy(
+  () => import("./tabs/CumulativeVolumeTab")
+);
 const MarketDistributionTab = React.lazy(
   () => import("./tabs/MarketDistributionTab")
 );
@@ -31,12 +33,23 @@ export interface TradingChartsProps {
   marketDistribution: MarketDistributionPoint[];
 }
 
+const TRADING_CHARTS_TAB_KEY = "tradingChartsTabIndex";
+
 export default function TradingCharts({
   pnlData,
   volumeData,
   marketDistribution,
 }: TradingChartsProps) {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
+  // Initialize tab state from localStorage or default to 0
+  const [selectedTab, setSelectedTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem(TRADING_CHARTS_TAB_KEY);
+      return savedTab ? parseInt(savedTab, 10) : 0;
+    }
+    return 0;
+  });
 
   const initialSelectedMarkets = useMemo(
     () =>
@@ -64,9 +77,17 @@ export default function TradingCharts({
     [marketDistribution, selectedMarkets]
   );
 
+  // Handle tab change and persist to localStorage
+  const handleTabChange = (index: number) => {
+    setSelectedTab(index);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(TRADING_CHARTS_TAB_KEY, index.toString());
+    }
+  };
+
   return (
     <div className="space-y-6 no-select">
-      <TabGroup className="w-full">
+      <TabGroup index={selectedTab} onIndexChange={handleTabChange}>
         <TabList className={`ml-2 ${isMobile ? "flex justify-center" : ""}`}>
           <Tab className={isMobile ? "text-xs" : "text-sm"}>PnL Analysis</Tab>
           <Tab className={isMobile ? "text-xs" : "text-sm"}>
@@ -79,26 +100,35 @@ export default function TradingCharts({
 
         <TabPanels>
           <TabPanel className="space-y-6">
-            <NetPnLTab enrichedPnlData={enrichedPnlData} isMobile={isMobile} />
-            <PnLTab pnlData={pnlData} isMobile={isMobile} />
+            <Suspense fallback={<div>Loading...</div>}>
+              <NetPnLTab
+                enrichedPnlData={enrichedPnlData}
+                isMobile={isMobile}
+              />
+              <PnLTab pnlData={pnlData} isMobile={isMobile} />
+            </Suspense>
           </TabPanel>
           <TabPanel className="space-y-6">
-            <VolumeTab
-              formattedVolumeData={formattedVolumeData}
-              isMobile={isMobile}
-            />
-            <CumulativeVolumeTab
-              formattedVolumeData={formattedVolumeData}
-              isMobile={isMobile}
-            />
+            <Suspense fallback={<div>Loading...</div>}>
+              <VolumeTab
+                formattedVolumeData={formattedVolumeData}
+                isMobile={isMobile}
+              />
+              <CumulativeVolumeTab
+                formattedVolumeData={formattedVolumeData}
+                isMobile={isMobile}
+              />
+            </Suspense>
           </TabPanel>
           <TabPanel className="space-y-6">
-            <MarketDistributionTab
-              filteredMarketDistribution={filteredMarketDistribution}
-              marketDistribution={marketDistribution}
-              selectedMarkets={selectedMarkets}
-              setSelectedMarkets={setSelectedMarkets}
-            />
+            <Suspense fallback={<div>Loading...</div>}>
+              <MarketDistributionTab
+                filteredMarketDistribution={filteredMarketDistribution}
+                marketDistribution={marketDistribution}
+                selectedMarkets={selectedMarkets}
+                setSelectedMarkets={setSelectedMarkets}
+              />
+            </Suspense>
           </TabPanel>
         </TabPanels>
       </TabGroup>

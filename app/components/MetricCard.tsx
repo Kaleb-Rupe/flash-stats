@@ -7,7 +7,7 @@ interface MetricCardProps {
   value: string | number;
   icon?: React.ReactNode;
   subtitle?: string;
-  trend?: number;
+  trend?: number | string;
   isPositive?: boolean;
   className?: string;
 }
@@ -24,7 +24,6 @@ const TrendIndicator = memo(({ trend }: { trend: number }) => (
     ) : (
       <ArrowDownIcon className="w-4 h-4" />
     )}
-    <span>{Math.abs(trend)}%</span>
   </div>
 ));
 
@@ -64,21 +63,23 @@ function MetricCard({
       className={`transition-all duration-200 shadow-strong transform-gpu will-change-transform ${className}`}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <div className="flex items-center gap-2">
             {icon && <IconWrapper icon={icon} />}
-            <p className="text-tremor-default text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis">
-              {title}
-            </p>
+            <div className="flex justify-between w-full">
+              <p className="text-tremor-default text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis text-nowrap">
+                {title}
+              </p>
+              {trend !== undefined && <TrendIndicator trend={Number(trend)} />}
+            </div>
           </div>
           <p className={valueClassName}>{value}</p>
           {subtitle && (
-            <p className="text-xs text-tremor-content dark:text-dark-tremor-content">
+            <p className="text-xs text-tremor-content dark:text-dark-tremor-content text-nowrap">
               {subtitle}
             </p>
           )}
         </div>
-        {trend !== undefined && <TrendIndicator trend={trend} />}
       </div>
     </Card>
   );

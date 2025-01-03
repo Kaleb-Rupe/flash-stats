@@ -1,5 +1,5 @@
 import React from "react";
-import { MemoizedAreaChart, MemoizedBarChart } from "../charts";
+import { MemoizedBarChart, MemoizedAreaChart } from "../charts";
 import { formatUSD } from "@/src/lib/utils/formatters";
 import { ChartDataPoint } from "../types";
 import { Card, Title } from "@tremor/react";

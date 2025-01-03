@@ -2,32 +2,31 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { DateRangePicker } from "@/app/components/dateRangePicker";
 import TradesTable from "@/app/components/TradesTable";
 import { fetchAndProcessTradingHistoryData } from "@/src/lib/services/tradingDataProcessor";
 import { TradingHistoryData } from "@/src/types/types";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { formatAddress } from "@/src/lib/utils/addressUtils";
 import { useCopyToClipboard } from "@/src/lib/utils/clipboardUtils";
-import { Check } from "lucide-react";
-import { Copy } from "lucide-react";
-
-// Define our time range interface for better type safety
-interface TimeRange {
-  start: number | null;
-  end: number | null;
-}
+import { Check, Copy } from "lucide-react";
+import { useDateRange } from "@/app/hooks/useDateRange";
+import DateRangeModal from "@/app/components/DateRangeModal";
 
 export default function TransactionsPage({
   params,
 }: {
   params: { address: string };
 }) {
-  // Use our TimeRange interface for the state
-  const [timeRange, setTimeRange] = useState<TimeRange>({
-    start: null,
-    end: null,
-  });
+  // Initialize the date range hook
+  const {
+    startTime,
+    endTime,
+    isModalOpen,
+    openModal,
+    closeModal,
+    handleDateChange,
+  } = useDateRange();
+
   const [tradingHistory, setTradingHistory] = useState<TradingHistoryData[]>(
     []
   );
@@ -47,15 +46,14 @@ export default function TransactionsPage({
   const fetchTransactionData = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
 
-      // We now know this returns TradingHistoryData[]
       const historyData = await fetchAndProcessTradingHistoryData(
         params.address,
-        timeRange.start,
-        timeRange.end
+        startTime, // Use the startTime from useDateRange
+        endTime // Use the endTime from useDateRange
       );
 
-      // TypeScript now knows this is TradingHistoryData[]
       setTradingHistory(historyData.tradingHistory as TradingHistoryData[]);
     } catch (error) {
       setError("Failed to fetch transaction data");
@@ -63,23 +61,12 @@ export default function TransactionsPage({
     } finally {
       setIsLoading(false);
     }
-  }, [params.address, timeRange]);
+  }, [params.address, startTime, endTime]);
 
+  // Fetch data when component mounts or date range changes
   useEffect(() => {
     fetchTransactionData();
   }, [fetchTransactionData]);
-
-  if (isLoading) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex justify-center items-center h-[calc(100vh-8rem)]"
-      >
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" />
-      </motion.div>
-    );
-  }
 
   if (error) {
     return (
@@ -117,14 +104,22 @@ export default function TransactionsPage({
                 )}
               </span>
             </div>
-            <DateRangePicker
-              onDateChange={(start, end) => {
-                setTimeRange({ start, end });
-              }}
-            />
+            <button
+              onClick={openModal}
+              className="hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg bg-[#131a2b] transition duration-300"
+            >
+              Filter by Dates
+            </button>
           </div>
         }
       >
+        {/* Date Range Modal */}
+        <DateRangeModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onDateChange={handleDateChange}
+        />
+
         <div className="space-y-8">
           <TradesTable
             address={params.address}
